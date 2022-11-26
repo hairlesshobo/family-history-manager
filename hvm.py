@@ -1,57 +1,25 @@
 #!/usr/bin/env python3
 
 import click
+import json
+import logging
 import os
 import pprint
+import subprocess
 import yaml
+
+from modules import cam_signature
 
 from typing import Dict
 from typing import Any
 
+logging.basicConfig(level=logging.INFO)
+
 __script_path = os.path.realpath(os.path.dirname(__file__))
 
-# cameras:
-#   akaso_brave7_le:
-#     name: Akaso Brave 7 LE
-#     commission_date: '2021-05-16'
-#     decommission_date: 
-#     hints:
-#       - type: file_extension
-#         value: MOV
-#         weight: medium
-#       - type: file_pattern
-#         value: '^\d{8}_\d{6}$'
-#         weight: medium
-#       - type: mediainfo
-#         section: general
-#         key: Format
-#         value: 'MPEG-4'
-#         weight: low
-
-
-# cameras:
-#   akaso_brave_7_le20210521_110655.MOV:
-#     Audio:
-#       Codec ID: sowt
-#       Format: PCM
-#     General:
-#       Format: MPEG-4
-#       Format profile: QuickTime
-#     Video:
-#       Codec ID: avc1
-#       Codec configuration box: avcC
-#       Color range: Limited
-#       Format: AVC
-#       Format level: 5.1
-#       Format profile: High
-#       Format settings, CABAC: true
-#       Format settings, GOP: M=1, N=8
-#       Format settings, Referenc: 2 frames
-#       Matrix coefficients: BT.601
-#       Muxing mode: Container profile=Main@5.1
-#       Scan type: Progressive
-
 def read_raw_cams() -> Dict[str, Any]:
+    """Read the contents of cams_raw.yml and return as dict"""
+
     raw_path = os.path.join(__script_path, 'yaml', 'cams_raw.yml')
 
     with open(raw_path) as file:
@@ -152,6 +120,61 @@ def generate_cams(force) -> None:
     click.echo('Writing to cams.yml')
     with open(cams_path, 'w') as file:
         yaml.dump(new_cameras_container, file)
+
+
+
+@cli.command()
+@click.argument('root_dir', required=True, type=str)
+def identify(root_dir) -> None:
+    """Run a scan to identify camera using mediainfo metadata"""
+
+    csig = cam_signature.CamSignature()
+    cams = csig.cams()
+    known_extensions = csig.known_extensions()
+
+    with os.scandir(root_dir) as file_it:
+        for file in file_it:
+            ext_idx = len(file.name) - file.name[::-1].index('.')
+            extension = file.name[ext_idx:]
+
+            if extension not in known_extensions:
+                continue
+
+            click.echo(f'Analyzing {file}...')
+            full_path = os.path.join(root_dir, file)
+
+            click.echo('  Reading mediainfo')
+            proc = subprocess.run(['mediainfo', '--Output=JSON', full_path], 
+                                    stdout=subprocess.PIPE)
+
+            minfo = json.loads(proc.stdout)
+            scorecard = csig.new_scorecard()
+
+            tracks = minfo['media']['track']
+
+            click.echo("  Generating camera scorecard")
+            for cam_id in cams:
+                cam = cams[cam_id]
+                hints = cam['hints']
+
+
+                csig.process_hints(cam_id, 'General', tracks, hints, scorecard)
+                csig.process_hints(cam_id, 'Video', tracks, hints, scorecard)
+                csig.process_hints(cam_id, 'Audio', tracks, hints, scorecard)
+                    # print(hint_key)
+
+                # break
+
+            # pprint.pprint(gtrack)
+
+            # print(pprint.pformat(gtrack))
+
+            click.echo('Camera scores by ')
+
+            for score_entry in sorted(scorecard.items(), key=lambda x: x[1], reverse=True):
+                print(f'{score_entry[0].rjust(25)}: {score_entry[1]}')
+
+            # print(full_path)
 
 if __name__ == '__main__':
     cli()
