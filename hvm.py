@@ -138,9 +138,9 @@ def identify() -> None:
     cams = csig.cams()
     known_extensions = csig.known_extensions()
 
-    for file in shared.scantree(Config.directories.video_root):
+    for file in shared.scantree(Config.directories.raw_footage_root):
         if file.is_file():
-            file_path_friendly = 
+            file_path_friendly = "raw:" + file.path.removeprefix(Config.directories.raw_footage_root)
             ext_idx = len(file.name) - file.name[::-1].index('.')
             extension = file.name[ext_idx:]
             file_basename = file.name[:ext_idx-1]
@@ -148,7 +148,7 @@ def identify() -> None:
             if extension not in known_extensions:
                 continue
 
-            click.echo(f'Analyzing {file.path}...')
+            click.echo(f'Analyzing {file_path_friendly}...')
 
             continue
 
