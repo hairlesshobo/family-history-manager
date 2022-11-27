@@ -7,20 +7,25 @@ import os
 import pprint
 import subprocess
 import yaml
+from modules import shared
 
-from modules import cam_signature
+from modules.cam_signature import CamSignature
+from modules.config import Config
+from modules.hint import Hint
 
 from typing import Dict
 from typing import Any
 
 logging.basicConfig(level=logging.INFO)
 
-__script_path = os.path.realpath(os.path.dirname(__file__))
+Config.load_config()
+
+print(Config.directories.video_root)
 
 def read_raw_cams() -> Dict[str, Any]:
     """Read the contents of cams_raw.yml and return as dict"""
 
-    raw_path = os.path.join(__script_path, 'yaml', 'cams_raw.yml')
+    raw_path = os.path.join(Config.project_root_path, 'yaml', 'cams_raw.yml')
 
     with open(raw_path) as file:
         try:
@@ -41,7 +46,7 @@ def clean_raw() -> None:
 
     cams_raw = read_raw_cams()
 
-    cleaned_path = os.path.join(__script_path, 'yaml', 'cams_cleaned.yml')
+    cleaned_path = os.path.join(Config.project_root_path, 'yaml', 'cams_cleaned.yml')
     
     with open(cleaned_path, 'w') as file:
         yaml.dump(cams_raw, file)
@@ -62,7 +67,7 @@ def generate_cams(force) -> None:
 
     do_continue = True
 
-    cams_path = os.path.join(__script_path, 'yaml', 'cams.yml')
+    cams_path = os.path.join(Config.project_root_path, 'yaml', 'cams.yml')
 
     if os.path.exists(cams_path):
         if force:
@@ -124,27 +129,31 @@ def generate_cams(force) -> None:
 
 
 @cli.command()
-@click.argument('root_dir', required=True, type=str)
-def identify(root_dir) -> None:
+# @click.argument('root_dir', required=True, type=str)
+# def identify(root_dir) -> None:
+def identify() -> None:
     """Run a scan to identify camera using mediainfo metadata"""
 
-    csig = cam_signature.CamSignature()
+    csig = CamSignature()
     cams = csig.cams()
     known_extensions = csig.known_extensions()
 
-    with os.scandir(root_dir) as file_it:
-        for file in file_it:
+    for file in shared.scantree(Config.directories.video_root):
+        if file.is_file():
+            file_path_friendly = 
             ext_idx = len(file.name) - file.name[::-1].index('.')
             extension = file.name[ext_idx:]
+            file_basename = file.name[:ext_idx-1]
 
             if extension not in known_extensions:
                 continue
 
-            click.echo(f'Analyzing {file}...')
-            full_path = os.path.join(root_dir, file)
+            click.echo(f'Analyzing {file.path}...')
+
+            continue
 
             click.echo('  Reading mediainfo')
-            proc = subprocess.run(['mediainfo', '--Output=JSON', full_path], 
+            proc = subprocess.run(['mediainfo', '--Output=JSON', file.path], 
                                     stdout=subprocess.PIPE)
 
             minfo = json.loads(proc.stdout)
@@ -155,24 +164,24 @@ def identify(root_dir) -> None:
             click.echo("  Generating camera scorecard")
             for cam_id in cams:
                 cam = cams[cam_id]
-                hints = cam['hints']
+                hints = Hint.to_list(cam['hints'])
+
+                scorecard.process_section_hints(cam_id, 'General', tracks, hints)
+                scorecard.process_section_hints(cam_id, 'Video', tracks, hints)
+                scorecard.process_section_hints(cam_id, 'Audio', tracks, hints)
+                scorecard.process_file_extension(cam_id, extension, hints)
+                scorecard.process_file_pattern(cam_id, file_basename, hints)
 
 
-                csig.process_hints(cam_id, 'General', tracks, hints, scorecard)
-                csig.process_hints(cam_id, 'Video', tracks, hints, scorecard)
-                csig.process_hints(cam_id, 'Audio', tracks, hints, scorecard)
-                    # print(hint_key)
+            click.echo('Camera score results')
 
-                # break
-
-            # pprint.pprint(gtrack)
-
-            # print(pprint.pformat(gtrack))
-
-            click.echo('Camera scores by ')
-
-            for score_entry in sorted(scorecard.items(), key=lambda x: x[1], reverse=True):
+            # show top 3 cameras
+            for score_entry in sorted(scorecard.get_scores().items(), key=lambda x: x[1], reverse=True)[0:3]:
                 print(f'{score_entry[0].rjust(25)}: {score_entry[1]}')
+
+            # show all cameras
+            # for score_entry in sorted(scorecard.get_scores().items(), key=lambda x: x[1], reverse=True):
+            #     print(f'{score_entry[0].rjust(25)}: {score_entry[1]}')
 
             # print(full_path)
 
