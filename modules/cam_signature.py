@@ -26,13 +26,16 @@ class CamSignature:
 
     def load_cams(self) -> None:
         if len(self.__cams.keys()) == 0:
-            cams_path = os.path.join(Config.project_root_path, 'config', 'cams.yml')
+            cams_path = os.path.join(Config.project_root_path, 'config', 'cam_profiles')
 
-            with open(cams_path) as file:
-                self.__cams = yaml.safe_load(file)
+            for entry in sorted(os.listdir(cams_path)):
+                if entry.endswith('.yml'):
+                    with open(os.path.join(cams_path, entry), "r") as file:
+                        cyaml = yaml.safe_load(file)
+                        self.__cams[cyaml['id']] = cyaml
 
     def cams(self):
-        return self.__cams['cameras']
+        return self.__cams
 
     def new_scorecard(self) -> Scorecard:
-        return Scorecard(list(self.__cams['cameras'].keys()))
+        return Scorecard(list(self.__cams.keys()))

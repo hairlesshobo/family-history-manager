@@ -8,6 +8,8 @@ class DirConfig:
     raw_footage_root: str
     web_footage_root: str
     final_footage_root: str
+    ignore_paths: list[str]
+    include_paths: list[str]
 
 class Config:
     __loaded = False
@@ -38,4 +40,6 @@ class Config:
         Config.directories.raw_footage_root = cyaml['directories']['raw_footage_root']
         Config.directories.web_footage_root = cyaml['directories']['web_footage_root']
         Config.directories.final_footage_root = cyaml['directories']['final_footage_root']
+        Config.directories.ignore_paths = list(cyaml['directories']['ignore_paths'])
+        Config.directories.include_paths = list(cyaml['directories']['include_paths'])
         

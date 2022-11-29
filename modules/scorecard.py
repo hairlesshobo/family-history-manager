@@ -7,6 +7,7 @@ import re
 
 class Scorecard:
     def __init__(self, cam_ids: list[str]):
+        # TODO: create class for storing cam scores that includes cam_id, score, and confidence
         self.__scores: dict[str, float] = dict()
 
         for cam_id in cam_ids:
@@ -15,6 +16,19 @@ class Scorecard:
 
     def get_scores(self) -> dict[str, float]:
         return self.__scores
+
+    
+    def calc_confidence(self) -> None:
+        """Calculate the current camera confidence levels"""
+
+        # add the top three scores together
+        # ex: 20 + 12 + 2 = 34
+
+        # divice by the current camera score
+        # ex: 34 / 20 = 1.7
+
+        # divice 100 by the above factor
+        # ex 100/1.7 = 58.8% confidence
 
 
     def process_section_hints(self, cam_id: str, type: str, tracks, all_hints: list[Hint]) -> None:
@@ -49,6 +63,7 @@ class Scorecard:
                     track_entry_value = str(track[hint_key])
 
             if track_entry_value != None:
+                # TODO: handle startswith, endswith, contains, or similar
                 is_match = track_entry_value == hint_value
                 
                 logging.debug(f'[{cam_id}] {type}/{hint_key}:  {track_entry_value} is {hint_value}?  {is_match}')
@@ -56,6 +71,8 @@ class Scorecard:
                 if is_match:
                     self.__scores[cam_id] += static.hint_weights[hint.weight]
                     # print(f'{hint_key} - MEOW YAY!')
+            else:
+                logging.debug(f'[{cam_id}] {type}/{hint_key}:  NOT FOUND')
 
     
     def process_file_extension(self, cam_id: str, file_extension: str, hints: list[Hint]) -> None:
