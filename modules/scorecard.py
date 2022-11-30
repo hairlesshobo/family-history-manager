@@ -7,7 +7,6 @@ import re
 
 class Scorecard:
     def __init__(self, cam_ids: list[str]):
-        # TODO: create class for storing cam scores that includes cam_id, score, and confidence
         self.__scores: dict[str, float] = dict()
 
         for cam_id in cam_ids:
@@ -18,17 +17,44 @@ class Scorecard:
         return self.__scores
 
     
+    def get_top_scores(self, count=0) -> dict[str, float]:
+        if count <= 0:
+            count = len(self.get_scores())
+
+        if count > len(self.get_scores()):
+            count = len(self.get_scores())
+
+        return sorted(self.get_scores().items(), key=lambda x: x[1], reverse=True)[0:count]
+
+    
     def calc_confidence(self) -> None:
-        """Calculate the current camera confidence levels"""
+        """Calculate the current camera confidence percentage"""
 
-        # add the top three scores together
-        # ex: 20 + 12 + 2 = 34
+        sorted_scores = self.get_top_scores()
 
-        # divice by the current camera score
-        # ex: 34 / 20 = 1.7
+        confidence = 0.0
+        
+        # use the full calculation
+        if len(sorted_scores) >= 2:
+            s1 = sorted_scores[0][1]
+            s2 = sorted_scores[1][1]
 
-        # divice 100 by the above factor
-        # ex 100/1.7 = 58.8% confidence
+            sum_score = s1 + s2
+            score_factor = sum_score / s1
+            base_cnfd = 100 / score_factor
+
+            cnfd_adj = 100 * (1 - (s2 / s1))
+
+            confidence = base_cnfd + cnfd_adj
+
+        # use the simplified calculation when there is only one camera in the scorecard
+        elif len(sorted_scores) == 1:
+            s1 = sorted_scores[0][1]
+
+            confidence = (s1 / static.max_score) * 100.0
+
+
+        return confidence
 
 
     def process_section_hints(self, cam_id: str, type: str, tracks, all_hints: list[Hint]) -> None:

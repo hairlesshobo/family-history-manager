@@ -46,7 +46,8 @@ class Hint:
     def to_list(hints: list[Any]) -> list[Hint]:
         new_hints: list[Hint] = list()
 
-        for hint in hints:
-            new_hints.append(Hint(hint))
+        if hints:
+            for hint in hints:
+                new_hints.append(Hint(hint))
 
         return new_hints

@@ -6,4 +6,5 @@ hint_weights = {
     'medium': 2.0,
     'high': 3.0
 }
-max_score = 20
+max_score = 20.0
+required_confidence = 70.0

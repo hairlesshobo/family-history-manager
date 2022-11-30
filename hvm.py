@@ -16,7 +16,7 @@ from modules.hint import Hint
 from typing import Dict
 from typing import Any
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 Config.load_config()
 
@@ -208,31 +208,27 @@ def identify() -> None:
                 scorecard.process_file_pattern(cam_id, file_basename, hints)
 
 
-            click.echo('Camera score results')
+            top_scores = scorecard.get_top_scores(2)
+            confidence = scorecard.calc_confidence()
+            confidence_pass = confidence > static.required_confidence
 
-            scorecard.calc_confidence()
+            c1 = top_scores[0]
+            c1_score = round(100 * (c1[1] / static.max_score), 0)
+            m1 = f'{c1[0]} / Confidence: {round(confidence, 1)}% / Score: {c1_score}%'
+            m2 = ''
 
-            # show top 3 cameras
-            total = 0
-            max = 0
-            for score_entry in sorted(scorecard.get_scores().items(), key=lambda x: x[1], reverse=True)[0:3]:
-                total += score_entry[1]
+            if len(top_scores) > 1:
+                c2 = top_scores[1]
+                c2_score = round(100 * (c2[1] / static.max_score), 0)
+                m2 = f'[2nd Place: {c2[0]} / Score: {c2_score}%]'
 
-                if score_entry[1] > max:
-                    max = score_entry[1]
-
-                click.echo(f'{score_entry[0].rjust(25)}: {score_entry[1]}')
-
-            confidence = 100 / (total / max)
-
-            click.echo()
-            click.echo(f'Confidence: {round(confidence, 1)}%')
+            click.echo(f'  Identified Camera: {m1} {m2}   Passed: {confidence_pass}')
 
             # show all cameras
-            # for score_entry in sorted(scorecard.get_scores().items(), key=lambda x: x[1], reverse=True):
+            # for score_entry in scorecard.get_top_scores():
             #     print(f'{score_entry[0].rjust(25)}: {score_entry[1]}')
 
-            break
+            # break
 
 
 ## Main entrypoint
