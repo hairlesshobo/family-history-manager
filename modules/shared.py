@@ -1,5 +1,8 @@
 import os
 
+from os import DirEntry
+from typing import Generator
+
 
 def distinct(sequence):
     seen = set()
@@ -8,11 +11,11 @@ def distinct(sequence):
             seen.add(s)
             yield s
 
-def scantree(path):
+def scantree(path, depth=0) -> Generator[tuple[DirEntry[str], int], None, None]:
     """Recursively yield DirEntry objects for given directory."""
 
     for entry in os.scandir(path):
         if entry.is_dir(follow_symlinks=False):
-            yield from scantree(entry.path)  # see below for Python 2.x
+            yield from scantree(entry.path, depth+1)
         else:
-            yield entry
+            yield (entry, depth)

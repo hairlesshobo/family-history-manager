@@ -17,17 +17,17 @@ class Scorecard:
         return self.__scores
 
     
-    def get_top_scores(self, count=0) -> dict[str, float]:
+    def get_top_scores(self, count=0) -> list[tuple[str, float]]:
         if count <= 0:
             count = len(self.get_scores())
 
         if count > len(self.get_scores()):
             count = len(self.get_scores())
 
-        return sorted(self.get_scores().items(), key=lambda x: x[1], reverse=True)[0:count]
+        return list(sorted(self.get_scores().items(), key=lambda x: x[1], reverse=True)[0:count])
 
     
-    def calc_confidence(self) -> None:
+    def calc_confidence(self) -> float:
         """Calculate the current camera confidence percentage"""
 
         sorted_scores = self.get_top_scores()

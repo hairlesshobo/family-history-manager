@@ -3,19 +3,9 @@ from . import static
 
 from typing import Any
 
-    # - type: file_extension
-    #   value: mp4
-    #   weight: medium
-    # - type: file_pattern
-    #   value: '^\d{8}_\d{6}$'
-    #   weight: medium
-    # - key: Format
-    #   section: general
-    #   type: mediainfo
-    #   value: MPEG-4
-    #   weight: low
-
 class Hint:
+    """Class used to define a hint, which is used to help score a video file"""
+    
     def __init__(self, in_hint: Any):
         self.type: str = in_hint.get('type', '')
         self.value: str = str(in_hint.get('value', ''))

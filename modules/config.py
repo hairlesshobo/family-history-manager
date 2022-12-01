@@ -1,7 +1,13 @@
 import logging
 import os
+from rich import inspect
 import yaml
 
+from datetime import datetime
+from typing import Any
+from modules.cam_profile import CamProfile
+
+from modules.hint import Hint
 
 class DirConfig:
     video_root: str
@@ -12,7 +18,7 @@ class DirConfig:
     include_paths: list[str]
 
 class Config:
-    __loaded = False
+    _loaded = False
 
     project_root_path: str = os.path.abspath(
             os.path.join(os.path.realpath(
@@ -21,14 +27,15 @@ class Config:
     config_file_path = os.path.join(project_root_path, 'config', 'config.yml')
 
     directories = DirConfig
+    cam_profiles = dict[str, CamProfile]
 
     @staticmethod
     def load_config():
-        if Config.__loaded:
+        if Config._loaded:
             logging.warning('Config already loaded, not reloading')
             return
         
-        Config.__loaded = True
+        Config._loaded = True
 
         if not os.path.exists(Config.config_file_path):
             raise Exception('Config file does not exist!')
@@ -42,4 +49,24 @@ class Config:
         Config.directories.final_footage_root = cyaml['directories']['final_footage_root']
         Config.directories.ignore_paths = list(cyaml['directories']['ignore_paths'])
         Config.directories.include_paths = list(cyaml['directories']['include_paths'])
+
+        Config.cam_profiles = Config._load_cam_profiles()
+
+        inspect(Config.cam_profiles)
+
+    @staticmethod
+    def _load_cam_profiles() -> dict[str, CamProfile]:
+        cams_path = os.path.join(Config.project_root_path, 'config', 'cam_profiles')
+
+        cams: dict[str, CamProfile] = dict()
+
+        for entry in sorted(os.listdir(cams_path)):
+            if entry.endswith('.yml'):
+                with open(os.path.join(cams_path, entry), "r") as file:
+                    cyaml = yaml.safe_load(file)
+
+                    cam_profile = CamProfile(cyaml)
+                    cams[cyaml['id']] = cam_profile
+
+        return cams
         
