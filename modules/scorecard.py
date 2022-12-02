@@ -7,14 +7,17 @@ import re
 
 class Scorecard:
     def __init__(self, cam_ids: list[str]):
-        self.__scores: dict[str, float] = dict()
+        self._scores: dict[str, float] = dict()
+        self._cam_ids = cam_ids
 
         for cam_id in cam_ids:
-            self.__scores[cam_id] = 0.0
+            self._scores[cam_id] = 0.0
 
+    def get_cam_ids(self) -> list[str]:
+        return self._cam_ids
 
     def get_scores(self) -> dict[str, float]:
-        return self.__scores
+        return self._scores
 
     
     def get_top_scores(self, count=0) -> list[tuple[str, float]]:
@@ -62,7 +65,7 @@ class Scorecard:
 
         logging.debug(f'[{cam_id}] {type} >> enter')
 
-        if cam_id not in list(self.__scores.keys()):
+        if cam_id not in list(self._scores.keys()):
             raise Exception(f'{cam_id} does not exist in scorecard')
 
         # Audio hints
@@ -95,7 +98,7 @@ class Scorecard:
                 logging.debug(f'[{cam_id}] {type}/{hint_key}:  {track_entry_value} is {hint_value}?  {is_match}')
 
                 if is_match:
-                    self.__scores[cam_id] += static.hint_weights[hint.weight]
+                    self._scores[cam_id] += static.hint_weights[hint.weight]
                     # print(f'{hint_key} - MEOW YAY!')
             else:
                 logging.debug(f'[{cam_id}] {type}/{hint_key}:  NOT FOUND')
@@ -106,14 +109,14 @@ class Scorecard:
 
         logging.debug(f'[{cam_id}] process_file_extension >> enter')
 
-        if cam_id not in list(self.__scores.keys()):
+        if cam_id not in list(self._scores.keys()):
             raise Exception(f'{cam_id} does not exist in scorecard')
 
         extension_hint = next(filter(lambda x: x.type == 'file_extension', hints), None)
 
         if extension_hint:
             if file_extension == extension_hint.value:
-                self.__scores[cam_id] += static.hint_weights[extension_hint.weight]
+                self._scores[cam_id] += static.hint_weights[extension_hint.weight]
 
 
     def process_file_pattern(self, cam_id: str, file_basename: str, hints: list[Hint]) -> None:
@@ -121,12 +124,12 @@ class Scorecard:
 
         logging.debug(f'[{cam_id}] process_file_pattern >> enter')
 
-        if cam_id not in list(self.__scores.keys()):
+        if cam_id not in list(self._scores.keys()):
             raise Exception(f'{cam_id} does not exist in scorecard')
 
         pattern_hint = next(filter(lambda x: x.type == 'file_pattern', hints), None)
 
         if pattern_hint:
             if re.search(pattern_hint.value, file_basename):
-                self.__scores[cam_id] += static.hint_weights[pattern_hint.weight]
+                self._scores[cam_id] += static.hint_weights[pattern_hint.weight]
             

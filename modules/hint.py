@@ -22,22 +22,12 @@ class Hint:
         if self.weight not in list(static.hint_weights.keys()):
             raise Exception(f'{self.weight} is not a valid weight for hint {in_hint}')
 
-    def __str__(self) -> str:
-        return str({
+    def __repr__(self) -> str:
+        return 'Hint(' + str({
             'type': self.type,
             'value': self.value,
             'weight': self.weight,
             'section': self.section,
             'key': self.key,
-        })
+        }) + ')'
         
-
-    @staticmethod
-    def to_list(hints: list[Any]) -> list[Hint]:
-        new_hints: list[Hint] = list()
-
-        if hints:
-            for hint in hints:
-                new_hints.append(Hint(hint))
-
-        return new_hints

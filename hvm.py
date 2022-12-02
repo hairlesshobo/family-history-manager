@@ -21,6 +21,7 @@ logging.basicConfig(level=logging.INFO)
 
 Config.load_config()
 
+
 def read_raw_cams() -> Dict[str, Any]:
     """Read the contents of cams_raw.yml and return as dict"""
 
@@ -47,9 +48,10 @@ def clean_raw() -> None:
     cams_raw = read_raw_cams()
 
     cleaned_path = os.path.join(Config.project_root_path, 'yaml', 'cams_cleaned.yml')
-    
+
     with open(cleaned_path, 'w') as file:
         yaml.dump(cams_raw, file)
+
 
 def new_hint(section: str, key: str, value: str) -> Dict[str, str]:
     return {
@@ -59,6 +61,7 @@ def new_hint(section: str, key: str, value: str) -> Dict[str, str]:
         'value': value,
         'weight': 'undetermined',
     }
+
 
 @cli.command()
 @click.option('--force', '-f', default=False, is_flag=True, help="If the output file exists, automatically overwrite")
@@ -71,7 +74,7 @@ def generate_cams(force) -> None:
 
     if os.path.exists(cams_path):
         if force:
-           logging.warning('cams.yml already exists, but overwriting due to --force parameter') 
+            logging.warning('cams.yml already exists, but overwriting due to --force parameter')
         else:
             do_continue = click.confirm('cams.yml already exists, overwrite?')
 
@@ -132,14 +135,21 @@ def validate_profiles() -> None:
     """Validate all known camera profiles"""
 
     csig = CamSignature()
-    cams = csig.cams()
+    cams = Config.cam_profiles
 
-    logging.info(f"{'Camera'.ljust(20)} {'Hints'.ljust(8)} {'Max Score'.ljust(9)} {'Deviation'.ljust(10)}")
-    logging.info(f"------------------------------------------------------------------------");
+    print(f"{'Camera'.ljust(20)} {'Hints'.ljust(8)} {'Max Score'.ljust(9)} {'Deviation'.ljust(10)}")
+    print(f"------------------------------------------------------------------------")
     for cam_id in cams:
         cam = cams[cam_id]
-        total_score = sum(static.hint_weights[x['weight']] for x in cam['hints'])
-        deviation = total_score - static.max_score
+
+        total_score = 0
+        deviation = 0 - static.max_score
+        hint_count = 0
+
+        if cam.hints:
+            total_score = sum(static.hint_weights[x.weight] for x in cam.hints)
+            deviation = total_score - static.max_score
+            hint_count = len(cam.hints)
 
         if deviation > 0:
             deviation = '+' + str(deviation)
@@ -148,8 +158,7 @@ def validate_profiles() -> None:
         else:
             deviation = str(deviation)
 
-        logging.info(f"{cam_id.ljust(20)} {str(len(cam['hints'])).ljust(8)} {str(total_score).ljust(9)} {deviation.ljust(10)}")
-
+        print(f"{cam_id.ljust(20)} {str(hint_count).ljust(8)} {str(total_score).ljust(9)} {deviation.ljust(10)}")
 
 
 @cli.command()
@@ -159,8 +168,6 @@ def identify() -> None:
     """Run a scan to identify camera using mediainfo metadata"""
 
     csig = CamSignature()
-    cams = csig.cams()
-    known_extensions = csig.known_extensions()
 
     # depths
     # 0 = "Cross" folder
@@ -169,17 +176,15 @@ def identify() -> None:
     # 3 = camera folder
     # 4 or higher = invalid
 
-    return
-
     for (file, depth) in shared.scantree(Config.directories.raw_footage_root):
         if file.is_file():
             path = pathlib.Path(file.path)
 
             extension = path.suffix[1:]
-            file_basename = path.name[:-len(extension)-1]
+            file_basename = path.name[:-len(extension) - 1]
 
             # skip any extensions that are not defined by a camera profile
-            if extension not in known_extensions:
+            if extension not in Config.known_extensions:
                 continue
 
             # skip any paths that are defined in our ignore_paths directive
@@ -195,15 +200,25 @@ def identify() -> None:
             file_path_friendly = f"{depth}_raw:" + file.path.removeprefix(Config.directories.raw_footage_root)
             print(f'>> [green]{file_path_friendly}[/green] ...', end=" ")
 
+            # now we build some logic to to determine if the video is organized properly
+            # into a known camera folder. camera folders currently live at a depth of 3
             in_cam_folder = depth == 3
+            known_cam = False
 
-            print(f'in cam folder: {in_cam_folder}')
+            # if we are deemed to be in a cam folder, lets check to see if it is a known camera
+            if in_cam_folder:
+                dir_name = path.parent.name
+                known_cam = dir_name in Config.cam_name_mappings.values()
+                print(f"dir name: {dir_name}, ", end="")
+
+            print(f'in cam folder: {in_cam_folder}, known_cam: {known_cam}')
+
+
 
             continue
 
-            # print('  Reading mediainfo')
-            proc = subprocess.run(['mediainfo', '--Output=JSON', file.path], 
-                                    stdout=subprocess.PIPE)
+            # Read metadata using `mediainfo` tool
+            proc = subprocess.run(['mediainfo', '--Output=JSON', file.path], stdout=subprocess.PIPE)
 
             minfo = json.loads(proc.stdout)
             scorecard = csig.new_scorecard()
@@ -211,18 +226,16 @@ def identify() -> None:
             tracks = minfo['media']['track']
 
             # print("  Generating camera scorecard")
-            for cam_id in cams:
-                cam = cams[cam_id]
-                hints = Hint.to_list(cam['hints'])
+            for cam_id in Config.cam_profiles:
+                cam = Config.cam_profiles[cam_id]
 
                 # TODO: use provided (de)commission dates as binary qualifiers
 
-                scorecard.process_section_hints(cam_id, 'General', tracks, hints)
-                scorecard.process_section_hints(cam_id, 'Video', tracks, hints)
-                scorecard.process_section_hints(cam_id, 'Audio', tracks, hints)
-                scorecard.process_file_extension(cam_id, extension, hints)
-                scorecard.process_file_pattern(cam_id, file_basename, hints)
-
+                scorecard.process_section_hints(cam_id, 'General', tracks, cam.hints)
+                scorecard.process_section_hints(cam_id, 'Video', tracks, cam.hints)
+                scorecard.process_section_hints(cam_id, 'Audio', tracks, cam.hints)
+                scorecard.process_file_extension(cam_id, extension, cam.hints)
+                scorecard.process_file_pattern(cam_id, file_basename, cam.hints)
 
             top_scores = scorecard.get_top_scores(2)
             confidence = scorecard.calc_confidence()
@@ -247,6 +260,6 @@ def identify() -> None:
             # break
 
 
-## Main entrypoint
+# Main entrypoint
 if __name__ == '__main__':
     cli()
