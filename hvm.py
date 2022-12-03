@@ -161,11 +161,19 @@ def validate_profiles() -> None:
         print(f"{cam_id.ljust(20)} {str(hint_count).ljust(8)} {str(total_score).ljust(9)} {deviation.ljust(10)}")
 
 
+def print_ident_result(message: str, positive: bool = True) -> None:
+    color = 'green' if positive else 'red'
+    print(f'   [bright_yellow]Result[/bright_yellow]      : [{color}]{message}[/{color}]')
+
+
+# TODO: Add flag to force re-scan of known cam dirs
 @cli.command()
 # @click.argument('root_dir', required=True, type=str)
 # def identify(root_dir) -> None:
 def identify() -> None:
     """Run a scan to identify camera using mediainfo metadata"""
+
+    rescan_known_cam_dirs = False
 
     csig = CamSignature()
 
@@ -198,24 +206,26 @@ def identify() -> None:
                     continue
 
             file_path_friendly = f"{depth}_raw:" + file.path.removeprefix(Config.directories.raw_footage_root)
-            print(f'>> [green]{file_path_friendly}[/green] ...', end=" ")
+            print('')
+            print(f'>> [magenta]File[/magenta]        : [dark_blue]{file_path_friendly}[/dark_blue]')
 
             # now we build some logic to to determine if the video is organized properly
             # into a known camera folder. camera folders currently live at a depth of 3
-            in_cam_folder = depth == 3
-            known_cam = False
+            in_cam_directory = depth == 3
+            dir_is_known_cam = False
+            cam_dir_name = ''
 
             # if we are deemed to be in a cam folder, lets check to see if it is a known camera
-            if in_cam_folder:
-                dir_name = path.parent.name
-                known_cam = dir_name in Config.cam_name_mappings.values()
-                print(f"dir name: {dir_name}, ", end="")
+            if in_cam_directory:
+                cam_dir_name = path.parent.name
+                dir_is_known_cam = cam_dir_name in Config.cam_name_mappings.values()
 
-            print(f'in cam folder: {in_cam_folder}, known_cam: {known_cam}')
+            print(f'   [magenta]Folder Stats[/magenta]: in cam folder: {in_cam_directory} / '
+                  f'cam dir name: \'{cam_dir_name}\' / known_cam: {dir_is_known_cam}')
 
-
-
-            continue
+            if dir_is_known_cam and not rescan_known_cam_dirs:
+                print_ident_result('Known camera directory, nothing to do', True)
+                continue
 
             # Read metadata using `mediainfo` tool
             proc = subprocess.run(['mediainfo', '--Output=JSON', file.path], stdout=subprocess.PIPE)
@@ -251,13 +261,30 @@ def identify() -> None:
                 c2_score = round(100 * (c2[1] / static.max_score), 0)
                 m2 = f'[dim][2nd: {c2[0]} / S: {c2_score}%][/]'
 
-            print(f'{m1} {m2}   Pass: {confidence_pass}')
+            print(f'   [magenta]Cam Profile[/magenta] : {m1} {m2}   Pass: {confidence_pass}')
 
-            # show all cameras
-            # for score_entry in scorecard.get_top_scores():
-            #     logging.info(f'{score_entry[0].rjust(25)}: {score_entry[1]}')
+            identified_cam_name = Config.cam_name_mappings[top_scores[0][0]]
 
-            # break
+            if depth not in [2, 3]:
+                print_ident_result(f'File exists at unknown depth \'{depth}\'', False)
+                continue
+
+            if in_cam_directory:
+                if dir_is_known_cam:
+                    if identified_cam_name == cam_dir_name:
+                        print_ident_result('File in proper directory, nothing to do')
+                    else:
+                        print_ident_result('File in known cam dir, but cam not same as identified')
+                else:
+                    if confidence_pass:
+                        print_ident_result('File in unknown cam directory.. dir can be renamed automatically')
+                    else:
+                        print_ident_result('File in unknown cam directory.. dir cannot be renamed automatically', False)
+            else:
+                if confidence_pass:
+                    print_ident_result('File not in cam directory, can automatically move to cam dir')
+                else:
+                    print_ident_result('File not in cam directory, and must be moved to cam dir manually', False)
 
 
 # Main entrypoint
