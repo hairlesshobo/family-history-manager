@@ -161,8 +161,7 @@ def validate_profiles() -> None:
         print(f"{cam_id.ljust(20)} {str(hint_count).ljust(8)} {str(total_score).ljust(9)} {deviation.ljust(10)}")
 
 
-def print_ident_result(message: str, positive: bool = True) -> None:
-    color = 'green' if positive else 'red'
+def print_ident_result(message: str, color: str = 'green') -> None:
     print(f'   [bright_yellow]Result[/bright_yellow]      : [{color}]{message}[/{color}]')
 
 
@@ -173,7 +172,17 @@ def print_ident_result(message: str, positive: bool = True) -> None:
 def identify() -> None:
     """Run a scan to identify camera using mediainfo metadata"""
 
-    rescan_known_cam_dirs = False
+    rescan_known_cam_dirs = True
+    stats: dict[str, int] = {
+        'located_at_invalid_level': 0,
+        'in_proper_directory': 0,
+        'in_proper_directory_trusted': 0,
+        'in_cam_dir_not_correct_cam': 0,
+        'not_in_dir_movable': 0,
+        'not_in_dir_not_movable': 0,
+        'in_unknown_cam_dir_movable': 0,
+        'in_unknown_cam_dir_not_movable': 0
+    }
 
     csig = CamSignature()
 
@@ -224,7 +233,7 @@ def identify() -> None:
                   f'cam dir name: \'{cam_dir_name}\' / known_cam: {dir_is_known_cam}')
 
             if dir_is_known_cam and not rescan_known_cam_dirs:
-                print_ident_result('Known camera directory, nothing to do', True)
+                print_ident_result('Known camera directory, nothing to do', 'green')
                 continue
 
             # Read metadata using `mediainfo` tool
@@ -235,7 +244,6 @@ def identify() -> None:
 
             tracks = minfo['media']['track']
 
-            # print("  Generating camera scorecard")
             for cam_id in Config.cam_profiles:
                 cam = Config.cam_profiles[cam_id]
 
@@ -265,26 +273,65 @@ def identify() -> None:
 
             identified_cam_name = Config.cam_name_mappings[top_scores[0][0]]
 
+
+            # Analyze directory structure and take action as needed to organize raw media
             if depth not in [2, 3]:
-                print_ident_result(f'File exists at unknown depth \'{depth}\'', False)
+                stats['located_at_invalid_level'] += 1
+                print_ident_result(f'File exists at unknown depth \'{depth}\'', 'red')
                 continue
 
             if in_cam_directory:
                 if dir_is_known_cam:
-                    if identified_cam_name == cam_dir_name:
-                        print_ident_result('File in proper directory, nothing to do')
+                    if confidence_pass:
+                        if identified_cam_name == cam_dir_name:
+                            stats['in_proper_directory'] += 1
+                            print_ident_result('File in proper directory, nothing to do', 'green')
+                        else:
+                            stats['in_cam_dir_not_correct_cam'] += 1
+                            print_ident_result('File in known cam dir, but cam not same as identified', 'red')
                     else:
-                        print_ident_result('File in known cam dir, but cam not same as identified')
+                        stats['in_proper_directory_trusted'] += 1
+                        print_ident_result('File in known cam directory but no confidence match, assume correct and nothing to do.', 'blue')
                 else:
                     if confidence_pass:
-                        print_ident_result('File in unknown cam directory.. dir can be renamed automatically')
+                        stats['in_unknown_cam_dir_movable'] += 1
+                        # print_ident_result('File in unknown cam directory.. dir can be renamed automatically', 'yellow')
+                        new_dir_name = identified_cam_name
+                        new_full_path = os.path.join(path.parent.parent.resolve(), new_dir_name)
+
+                        # rename the parent (directory) to the new name
+                        # TODO: Enable renaming once the directory scanning logic has been integrated directly into the identify function
+                        # path.parent.rename(new_full_path)
+                        print_ident_result(f'File in unknown cam directory.. dir renamed to \'{new_dir_name}\'', 'yellow')
                     else:
-                        print_ident_result('File in unknown cam directory.. dir cannot be renamed automatically', False)
+                        stats['in_unknown_cam_dir_not_movable'] += 1
+                        print_ident_result('File in unknown cam directory.. dir cannot be renamed automatically', 'red')
+
+            # Discovered file not located in an appropriately named camera directory.. action needs to be taken
             else:
+
+                # We are confident of our camera identification, move the file to an appropriately named folder
                 if confidence_pass:
-                    print_ident_result('File not in cam directory, can automatically move to cam dir')
+                    stats['not_in_dir_movable'] += 1
+                    print_ident_result('File not in cam directory, can automatically move to cam dir', 'yellow')
                 else:
-                    print_ident_result('File not in cam directory, and must be moved to cam dir manually', False)
+                    stats['not_in_dir_not_movable'] += 1
+                    print_ident_result('File not in cam directory, and must be moved to cam dir manually', 'red')
+
+            # break
+
+
+    print("Summary:")
+    print("----------------------------------------------------")
+    print(f"      located_at_invalid_level: {stats['located_at_invalid_level']}")
+    print(f"           in_proper_directory: {stats['in_proper_directory']}")
+    print(f"   in_proper_directory_trusted: {stats['in_proper_directory_trusted']}")
+    print(f"    in_cam_dir_not_correct_cam: {stats['in_cam_dir_not_correct_cam']}")
+    print(f"    in_unknown_cam_dir_movable: {stats['in_unknown_cam_dir_movable']}")
+    print(f"in_unknown_cam_dir_not_movable: {stats['in_unknown_cam_dir_not_movable']}")
+    print(f"            not_in_dir_movable: {stats['not_in_dir_movable']}")
+    print(f"        not_in_dir_not_movable: {stats['not_in_dir_not_movable']}")
+
 
 
 # Main entrypoint

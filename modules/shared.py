@@ -7,15 +7,19 @@ from typing import Generator
 def distinct(sequence):
     seen = set()
     for s in sequence:
-        if not s in seen:
+        if s not in seen:
             seen.add(s)
             yield s
 
+
+# TODO: move this logic to the identify command so that it can intelligently handle renaming of directories
+# TODO: can i use a callback function to inject core functionality into this reusable scantree function?
 def scantree(path, depth=0) -> Generator[tuple[DirEntry[str], int], None, None]:
     """Recursively yield DirEntry objects for given directory."""
 
     for entry in os.scandir(path):
         if entry.is_dir(follow_symlinks=False):
-            yield from scantree(entry.path, depth+1)
+            yield from scantree(entry.path, depth + 1)
         else:
-            yield (entry, depth)
+            if os.path.exists(entry.path):
+                yield (entry, depth)

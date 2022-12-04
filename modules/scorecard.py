@@ -19,7 +19,7 @@ class Scorecard:
     def get_scores(self) -> dict[str, float]:
         return self._scores
 
-    
+
     def get_top_scores(self, count=0) -> list[tuple[str, float]]:
         if count <= 0:
             count = len(self.get_scores())
@@ -29,7 +29,7 @@ class Scorecard:
 
         return list(sorted(self.get_scores().items(), key=lambda x: x[1], reverse=True)[0:count])
 
-    
+
     def calc_confidence(self) -> float:
         """Calculate the current camera confidence percentage"""
 
@@ -55,6 +55,9 @@ class Scorecard:
             s1 = sorted_scores[0][1]
 
             confidence = (s1 / static.max_score) * 100.0
+
+        if confidence > 100.0:
+            confidence = 100
 
 
         return confidence
@@ -91,7 +94,7 @@ class Scorecard:
                 if hint_key in track:
                     track_entry_value = str(track[hint_key])
 
-            if track_entry_value != None:
+            if track_entry_value is not None:
                 # TODO: handle startswith, endswith, contains, or similar
                 is_match = track_entry_value == hint_value
                 
@@ -132,4 +135,3 @@ class Scorecard:
         if pattern_hint:
             if re.search(pattern_hint.value, file_basename):
                 self._scores[cam_id] += static.hint_weights[pattern_hint.weight]
-            
