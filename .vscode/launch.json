@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/hvm.py",
             "args": [
-                "identify"
+                "organize-raw"
             ],
             "console": "integratedTerminal",
             "justMyCode": true
