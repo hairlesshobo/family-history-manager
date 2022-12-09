@@ -55,34 +55,56 @@ def scanmedia(
 ) -> None:
     """This is meant to be a reusable function for walking media directory trees"""
 
+    if depth == 0:
+        print(f'extensions: {extensions}')
+
+    root_path_new = ''
+
     def dir_renamed() -> None:
         print('hey')
 
+    dir_paths: list[str] = list()
+    file_paths: list[str] = list()
+
     for entry in os.scandir(root_path):
         if entry.is_dir(follow_symlinks=False):
-            scanmedia(entry.path, process_file, extensions, include_paths, exclude_paths, depth + 1)
+            dir_paths.append(entry.path)
         else:
-            # if a list of allowed extensions was provided, we skip any files that do not in the approved list
-            if len(extensions) > 0:
-                path = pathlib.Path(entry.path)
+            file_paths.append(entry.path)
 
-                extension = path.suffix[1:]
-                # file_basename = path.name[:-len(extension) - 1]
+    dir_paths.sort()
+    file_paths.sort()
 
-                if extension not in extensions:
-                    continue
+    for dir_path in dir_paths:
+        print(f'   DIR: {dir_path}')
+        scanmedia(dir_path, process_file, extensions, include_paths, exclude_paths, depth + 1)
+    
+    for file_path in file_paths:
+        # if a list of allowed extensions was provided, we skip any files that do not in the approved list
+        if len(extensions) > 0:
+            path = pathlib.Path(file_path)
 
-            # skip any paths that are defined in our exclude_paths directive
-            if any(entry.path.startswith(x) for x in exclude_paths):
+            extension = path.suffix[1:]
+            # file_basename = path.name[:-len(extension) - 1]
+
+            if extension not in extensions:
+                print(f'SKIP-E: {file_path}')
                 continue
 
-            # if a list of include paths is configued, we require the current path to be in the list
-            # else we skip the current path
-            if len(include_paths) > 0:
-                if not any(entry.path.startswith(x) for x in include_paths):
-                    continue
+        # skip any paths that are defined in our exclude_paths directive
+        if any(file_path.startswith(x) for x in exclude_paths):
+            print(f'  EXCL: {file_path}')
+            continue
 
-            print(entry.path)
-                
-            # if we made it this far, we execute the callback to process the file
-            process_file(entry, depth, dir_renamed)
+        # if a list of include paths is configued, we require the current path to be in the list
+        # else we skip the current path
+        if len(include_paths) > 0:
+            if not any(file_path.startswith(x) for x in include_paths):
+                print(f'N-INCL: {file_path}')
+                continue
+        
+        print(f'  FILE: {file_path}')
+
+
+        # if we made it this far, we execute the callback to process the file
+        # process_file(entry, depth, dir_renamed)
