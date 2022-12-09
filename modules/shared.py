@@ -77,6 +77,10 @@ def scanmedia(
         path = pathlib.Path(root_path)
 
         new_root_path = os.path.join(path.parent.resolve(), new_dir_name)
+
+        if os.path.exists(new_root_path):
+            raise Exception(f'Destination path already exists: {new_root_path}')
+            
         path.rename(new_root_path)
 
         for i in range(len(file_paths)):

@@ -50,8 +50,8 @@ class Config:
         Config.directories.raw_footage_root = cyaml['directories']['raw_footage_root']
         Config.directories.web_footage_root = cyaml['directories']['web_footage_root']
         Config.directories.final_footage_root = cyaml['directories']['final_footage_root']
-        Config.directories.ignore_paths = list(cyaml['directories']['ignore_paths'])
-        Config.directories.include_paths = list(cyaml['directories']['include_paths'])
+        Config.directories.ignore_paths = list(cyaml['directories']['ignore_paths']) if 'ignore_paths' in cyaml['directories'] else list()
+        Config.directories.include_paths = list(cyaml['directories']['include_paths']) if 'include_paths' in cyaml['directories'] else list()
 
         Config.cam_profiles = Config._load_cam_profiles()
         Config.known_extensions = Config._get_known_extensions()

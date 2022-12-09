@@ -18,7 +18,9 @@ from rich import print
 def command() -> None:
     """Run a scan to identify camera using mediainfo metadata"""
 
-    rescan_known_cam_dirs = True
+    rescan_known_cam_dirs = False
+    simulation = False
+
     stats: dict[str, int] = {
         'located_at_invalid_level': 0,
         'in_proper_directory': 0,
@@ -141,13 +143,15 @@ def command() -> None:
 
                 # The camera scanner confidence is high enough to rename the directory automatically
                 if confidence_pass:
-                    stats['in_unknown_cam_dir_movable'] += 1
-                    # stats['in_proper_directory'] += 1
-
                     # rename the directory to the new name
-                    # rename_dir(identified_cam_name)
+                    if not simulation: 
+                        stats['in_proper_directory'] += 1
+                        rename_dir(identified_cam_name)
+                        print_ident_result(f'File in unknown cam directory.. dir renamed to \'{identified_cam_name}\'', 'yellow')
 
-                    print_ident_result(f'File in unknown cam directory.. dir renamed to \'{identified_cam_name}\'', 'yellow')
+                    else:
+                        stats['in_unknown_cam_dir_movable'] += 1
+                        print_ident_result(f'File in unknown cam directory.. dir to be renamed to \'{identified_cam_name}\'', 'yellow')
 
                 # the camera scanner confidence is NOT high enough to take any automatic action. manual user intervention required
                 else:
@@ -159,8 +163,28 @@ def command() -> None:
 
             # We are confident of our camera identification, move the file to an appropriately named folder
             if confidence_pass:
-                stats['not_in_dir_movable'] += 1
-                print_ident_result('File not in cam directory, can automatically move to cam dir', 'yellow')
+                if simulation:
+                    stats['not_in_dir_movable'] += 1
+                    print_ident_result('File not in cam directory, can automatically move to cam dir \'{identified_cam_name}\'', 'yellow')
+                else:
+                    new_directory = os.path.join(path.parent.resolve(), identified_cam_name)
+
+                    if not os.path.exists(new_directory):
+                        os.mkdir(new_directory)
+
+                    elif not os.path.isdir(new_directory):
+                        stats['not_in_dir_not_movable'] += 1
+                        print_ident_result(f'File not in cam directory, but cam dir \'{identified_cam_name}\' exists and is not directory!', 'red')
+                        return
+                    
+                    new_path = os.path.join(new_directory, path.name)
+
+                    ## TODO: Build logic to also move any sidecar files that may be present
+                    path.rename(new_path)
+
+                    stats['in_proper_directory'] += 1
+                    print_ident_result(f'File not in cam directory, moved to cam dir \'{identified_cam_name}\'', 'yellow')
+
 
             # Our camera confidence is not high enough to automatically move the file, user must move manually
             else:
