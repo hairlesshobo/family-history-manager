@@ -47,7 +47,7 @@ def scantree(path, depth=0) -> Generator[tuple[DirEntry[str], int], None, None]:
 
 def scanmedia(
     root_path: str,
-    process_file: Callable[[DirEntry, int, Callable[[], None]], None],
+    process_file: Callable[[str, pathlib.Path, int, Callable[[], None]], None],
     extensions: list[str] = list(),
     include_paths: list[str] = list(),
     exclude_paths: list[str] = list(),
@@ -55,10 +55,8 @@ def scanmedia(
 ) -> None:
     """This is meant to be a reusable function for walking media directory trees"""
 
-    if depth == 0:
-        print(f'extensions: {extensions}')
-
-    root_path_new = ''
+    # if depth == 0:
+    #     print(f'extensions: {extensions}')
 
     dir_paths: list[str] = list()
     file_paths: list[str] = list()
@@ -72,15 +70,24 @@ def scanmedia(
     dir_paths.sort()
     file_paths.sort()
 
-    def dir_renamed(new_path: str) -> None:
-        # TODO: Add check here to make sure that the renamed path still falls within the root_path
+
+    def rename_dir(new_dir_name: str) -> None:
         nonlocal file_paths, root_path
-        
+
+        path = pathlib.Path(root_path)
+
+        new_root_path = os.path.join(path.parent.resolve(), new_dir_name)
+        path.rename(new_root_path)
+
         for i in range(len(file_paths)):
-            file_paths[i] = file_paths[i].replace(root_path, new_path)
+            file_paths[i] = file_paths[i].replace(root_path, new_root_path)
+
+        root_path = new_root_path
+
+
 
     for dir_path in dir_paths:
-        print(f'   DIR: {dir_path}')
+        # print(f'   DIR: {dir_path}')
         scanmedia(dir_path, process_file, extensions, include_paths, exclude_paths, depth + 1)
     
     for file_path in file_paths:
@@ -107,8 +114,8 @@ def scanmedia(
                 # print(f'N-INCL: {file_path}')
                 continue
         
-        print(f'  FILE: {file_path}')
+        # print(f'  FILE: {file_path}')
 
 
         # if we made it this far, we execute the callback to process the file
-        process_file(file_path, depth, dir_renamed)
+        process_file(file_path, path, depth, rename_dir)

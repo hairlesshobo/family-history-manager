@@ -38,31 +38,13 @@ def command() -> None:
     # 2 = scene folder, should be named "^(\d{4}-\d{2}-\d{2}) -- (\w+)$"
     # 3 = camera folder
     # 4 or higher = invalid
-
-    count = 0
-
-    def handle_media_file(file_path: str, depth: int, dir_renamed: Callable) -> None:
-        path = pathlib.Path(file_path)
-
+    def handle_media_file(file_path: str, path: pathlib.Path, depth: int, rename_dir: Callable) -> None:
         extension = path.suffix[1:]
         file_basename = path.name[:-len(extension) - 1]
-
 
         file_path_friendly = f"{depth}_raw:" + file_path.removeprefix(Config.directories.raw_footage_root)
         print('')
         print(f'>> [magenta]File[/magenta]        : [dark_blue]{file_path_friendly}[/dark_blue]')
-
-        nonlocal count
-        
-        if count == 0:
-            count = 1
-
-            new_dir_name = 'meow'
-            new_full_path = os.path.join(path.parent.parent.resolve(), new_dir_name)
-
-            dir_renamed(new_full_path)
-
-        return
 
         # now we build some logic to to determine if the video is organized properly
         # into a known camera folder. camera folders currently live at a depth of 3
@@ -84,7 +66,7 @@ def command() -> None:
 
         # TODO: Move this functionality to a separate function
         # Read metadata using `mediainfo` tool
-        proc = subprocess.run(['mediainfo', '--Output=JSON', entry.path], stdout=subprocess.PIPE)
+        proc = subprocess.run(['mediainfo', '--Output=JSON', file_path], stdout=subprocess.PIPE)
 
         minfo = json.loads(proc.stdout)
         scorecard = csig.new_scorecard()
@@ -160,14 +142,12 @@ def command() -> None:
                 # The camera scanner confidence is high enough to rename the directory automatically
                 if confidence_pass:
                     stats['in_unknown_cam_dir_movable'] += 1
-                    # print_ident_result('File in unknown cam directory.. dir can be renamed automatically', 'yellow')
-                    new_dir_name = identified_cam_name
-                    new_full_path = os.path.join(path.parent.parent.resolve(), new_dir_name)
+                    # stats['in_proper_directory'] += 1
 
-                    # rename the parent (directory) to the new name
-                    # TODO: Enable renaming once the directory scanning logic has been integrated directly into the identify function
-                    # path.parent.rename(new_full_path)
-                    print_ident_result(f'File in unknown cam directory.. dir renamed to \'{new_dir_name}\'', 'yellow')
+                    # rename the directory to the new name
+                    # rename_dir(identified_cam_name)
+
+                    print_ident_result(f'File in unknown cam directory.. dir renamed to \'{identified_cam_name}\'', 'yellow')
 
                 # the camera scanner confidence is NOT high enough to take any automatic action. manual user intervention required
                 else:
