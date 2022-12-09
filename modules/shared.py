@@ -60,9 +60,6 @@ def scanmedia(
 
     root_path_new = ''
 
-    def dir_renamed() -> None:
-        print('hey')
-
     dir_paths: list[str] = list()
     file_paths: list[str] = list()
 
@@ -74,6 +71,13 @@ def scanmedia(
 
     dir_paths.sort()
     file_paths.sort()
+
+    def dir_renamed(new_path: str) -> None:
+        # TODO: Add check here to make sure that the renamed path still falls within the root_path
+        nonlocal file_paths, root_path
+        
+        for i in range(len(file_paths)):
+            file_paths[i] = file_paths[i].replace(root_path, new_path)
 
     for dir_path in dir_paths:
         print(f'   DIR: {dir_path}')
@@ -88,23 +92,23 @@ def scanmedia(
             # file_basename = path.name[:-len(extension) - 1]
 
             if extension not in extensions:
-                print(f'SKIP-E: {file_path}')
+                # print(f'SKIP-E: {file_path}')
                 continue
 
         # skip any paths that are defined in our exclude_paths directive
         if any(file_path.startswith(x) for x in exclude_paths):
-            print(f'  EXCL: {file_path}')
+            # print(f'  EXCL: {file_path}')
             continue
 
         # if a list of include paths is configued, we require the current path to be in the list
         # else we skip the current path
         if len(include_paths) > 0:
             if not any(file_path.startswith(x) for x in include_paths):
-                print(f'N-INCL: {file_path}')
+                # print(f'N-INCL: {file_path}')
                 continue
         
         print(f'  FILE: {file_path}')
 
 
         # if we made it this far, we execute the callback to process the file
-        # process_file(entry, depth, dir_renamed)
+        process_file(file_path, depth, dir_renamed)

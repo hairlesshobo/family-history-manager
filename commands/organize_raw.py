@@ -39,16 +39,30 @@ def command() -> None:
     # 3 = camera folder
     # 4 or higher = invalid
 
-    def handle_media_file(entry: os.DirEntry, depth: int, dir_renamed: Callable) -> None:
-        path = pathlib.Path(entry.path)
+    count = 0
+
+    def handle_media_file(file_path: str, depth: int, dir_renamed: Callable) -> None:
+        path = pathlib.Path(file_path)
 
         extension = path.suffix[1:]
         file_basename = path.name[:-len(extension) - 1]
 
 
-        file_path_friendly = f"{depth}_raw:" + entry.path.removeprefix(Config.directories.raw_footage_root)
+        file_path_friendly = f"{depth}_raw:" + file_path.removeprefix(Config.directories.raw_footage_root)
         print('')
         print(f'>> [magenta]File[/magenta]        : [dark_blue]{file_path_friendly}[/dark_blue]')
+
+        nonlocal count
+        
+        if count == 0:
+            count = 1
+
+            new_dir_name = 'meow'
+            new_full_path = os.path.join(path.parent.parent.resolve(), new_dir_name)
+
+            dir_renamed(new_full_path)
+
+        return
 
         # now we build some logic to to determine if the video is organized properly
         # into a known camera folder. camera folders currently live at a depth of 3
