@@ -1,3 +1,4 @@
 yaml/*
 config/**/*.yml
+config/**/*.yaml
 __pycache__

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 import os
 import yaml
@@ -11,11 +13,18 @@ from modules.hint import Hint
 
 class DirConfig:
     video_root: str
+    raw: DirConfigClass
     raw_footage_root: str
     web_footage_root: str
     final_footage_root: str
     ignore_paths: list[str]
     include_paths: list[str]
+
+class DirConfigClass:
+    def __init__(self, input: dict[str, str]):
+        self.root: str = input['root']
+        self.include: list[str] = list(input['include']) if 'include' in input else list()
+        self.exclude: list[str] = list(input['exclude']) if 'exclude' in input else list()
 
 
 class Config:
@@ -24,7 +33,7 @@ class Config:
     project_root_path: str = os.path.abspath(os.path.join(os.path.realpath(
         os.path.dirname(__file__)), '../'))
 
-    config_file_path = os.path.join(project_root_path, 'config', 'config.yml')
+    config_file_path = os.path.join(project_root_path, 'config', 'config.yaml')
 
     directories = DirConfig
     cam_profiles: dict[str, CamProfile]
@@ -47,11 +56,10 @@ class Config:
             cyaml = yaml.safe_load(file)
 
         Config.directories.video_root = cyaml['directories']['video_root']
-        Config.directories.raw_footage_root = cyaml['directories']['raw_footage_root']
-        Config.directories.web_footage_root = cyaml['directories']['web_footage_root']
-        Config.directories.final_footage_root = cyaml['directories']['final_footage_root']
-        Config.directories.ignore_paths = list(cyaml['directories']['ignore_paths']) if 'ignore_paths' in cyaml['directories'] else list()
-        Config.directories.include_paths = list(cyaml['directories']['include_paths']) if 'include_paths' in cyaml['directories'] else list()
+
+        Config.directories.raw = DirConfigClass(cyaml['directories']['raw'])
+        Config.directories.web_footage = DirConfigClass(cyaml['directories']['web_footage'])
+        Config.directories.final_footage = DirConfigClass(cyaml['directories']['final_footage'])
 
         Config.cam_profiles = Config._load_cam_profiles()
         Config.known_extensions = Config._get_known_extensions()
@@ -89,7 +97,7 @@ class Config:
         cams: dict[str, CamProfile] = dict()
 
         for entry in sorted(os.listdir(cams_path)):
-            if entry.endswith('.yml'):
+            if entry.endswith('.yaml'):
                 with open(os.path.join(cams_path, entry), "r") as file:
                     cyaml = yaml.safe_load(file)
 

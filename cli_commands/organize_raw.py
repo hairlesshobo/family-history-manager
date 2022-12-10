@@ -5,7 +5,7 @@ import os
 import pathlib
 import subprocess
 
-from modules import shared, static
+from modules import media_scanning, shared, static
 from modules.cam_signature import CamSignature
 from modules.config import Config
 from rich import print
@@ -195,12 +195,12 @@ def command() -> None:
         # break
 
 
-    shared.scanmedia(
-        Config.directories.raw_footage_root,
+    media_scanning.scan_media(
+        Config.directories.raw.root,
         handle_media_file,
         Config.known_extensions,
-        Config.directories.include_paths,
-        Config.directories.ignore_paths
+        Config.directories.raw.include,
+        Config.directories.raw.exclude
     )
 
 

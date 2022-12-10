@@ -14,6 +14,6 @@ Options:
   --help  Show this message and exit.
 
 Commands:
-  clean-raw      Reads cams_raw.yml file, clean and output to...
-  generate-cams  Generate cams.yml file from cams_raw.yml
+  clean-raw      Reads cams_raw.yaml file, clean and output to...
+  generate-cams  Generate cams.yaml file from cams_raw.yaml
 ```

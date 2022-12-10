@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/hvm.py",
             "args": [
-                "organize-raw"
+                "generate-raw-video-sidecars"
             ],
             "console": "integratedTerminal",
             "justMyCode": true

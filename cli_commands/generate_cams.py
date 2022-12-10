@@ -12,23 +12,23 @@ from typing import Dict
 @click.command('generate-cams')
 @click.option('--force', '-f', default=False, is_flag=True, help="If the output file exists, automatically overwrite")
 def command(force) -> None:
-    """Generate cams.yml file from cams_raw.yml"""
+    """Generate cams.yaml file from cams_raw.yaml"""
 
     do_continue = True
 
-    cams_path = os.path.join(Config.project_root_path, 'yaml', 'cams.yml')
+    cams_path = os.path.join(Config.project_root_path, 'yaml', 'cams.yaml')
 
     if os.path.exists(cams_path):
         if force:
-            logging.warning('cams.yml already exists, but overwriting due to --force parameter')
+            logging.warning('cams.yaml already exists, but overwriting due to --force parameter')
         else:
-            do_continue = click.confirm('cams.yml already exists, overwrite?')
+            do_continue = click.confirm('cams.yaml already exists, overwrite?')
 
     if not do_continue:
         logging.info('generate_cams() operation aborted')
         return
 
-    logging.info('Reading cams_raw.yml...')
+    logging.info('Reading cams_raw.yaml...')
     raw_cams = shared.read_raw_cams()
     new_cameras_container = dict()
     new_cameras = new_cameras_container['cameras'] = dict()
@@ -71,7 +71,7 @@ def command(force) -> None:
             new_cameras[cam_id] = new_camera
 
     print()
-    print('Writing to cams.yml')
+    print('Writing to cams.yaml')
     with open(cams_path, 'w') as file:
         yaml.dump(new_cameras_container, file)
 
