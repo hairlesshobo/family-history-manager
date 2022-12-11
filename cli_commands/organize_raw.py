@@ -4,9 +4,10 @@ import json
 import os
 import pathlib
 import subprocess
+from classes.media_file import MediaFile
 
 from modules import media_scanning, shared, static
-from modules.cam_signature import CamSignature
+from classes.cam_signature import CamSignature
 from modules.config import Config
 from rich import print
 
@@ -40,11 +41,8 @@ def command() -> None:
     # 2 = scene folder, should be named "^(\d{4}-\d{2}-\d{2}) -- (\w+)$"
     # 3 = camera folder
     # 4 or higher = invalid
-    def handle_media_file(file_path: str, path: pathlib.Path, depth: int, rename_dir: Callable) -> None:
-        extension = path.suffix[1:]
-        file_basename = path.name[:-len(extension) - 1]
-
-        file_path_friendly = f"{depth}_raw:" + file_path.removeprefix(Config.directories.raw_footage_root)
+    def handle_media_file(media_file: MediaFile, depth: int, rename_dir: Callable) -> None:
+        file_path_friendly = f"{depth}_raw:" + media_file.path.removeprefix(Config.directories.raw.root)
         print('')
         print(f'>> [magenta]File[/magenta]        : [dark_blue]{file_path_friendly}[/dark_blue]')
 
@@ -56,7 +54,7 @@ def command() -> None:
 
         # if we are deemed to be in a cam folder, lets check to see if it is a known camera
         if in_cam_directory:
-            cam_dir_name = path.parent.name
+            cam_dir_name = media_file.path_info.parent.name
             dir_is_known_cam = cam_dir_name in Config.cam_name_mappings.values()
 
         print(f'   [magenta]Folder Stats[/magenta]: in cam folder: {in_cam_directory} / '
@@ -66,11 +64,8 @@ def command() -> None:
             print_ident_result('Known camera directory, nothing to do', 'green')
             return
 
-        # TODO: Move this functionality to a separate function
-        # Read metadata using `mediainfo` tool
-        proc = subprocess.run(['mediainfo', '--Output=JSON', file_path], stdout=subprocess.PIPE)
-
-        minfo = json.loads(proc.stdout)
+        # Read file mediainfo
+        minfo = media_scanning.read_media_info(media_file.path)
         scorecard = csig.new_scorecard()
 
         tracks = minfo['media']['track']
@@ -83,8 +78,8 @@ def command() -> None:
             scorecard.process_section_hints(cam_id, 'General', tracks, cam.hints)
             scorecard.process_section_hints(cam_id, 'Video', tracks, cam.hints)
             scorecard.process_section_hints(cam_id, 'Audio', tracks, cam.hints)
-            scorecard.process_file_extension(cam_id, extension, cam.hints)
-            scorecard.process_file_pattern(cam_id, file_basename, cam.hints)
+            scorecard.process_file_extension(cam_id, media_file.extension, cam.hints)
+            scorecard.process_file_pattern(cam_id, media_file.base_name, cam.hints)
 
         top_scores = scorecard.get_top_scores(2)
         confidence = scorecard.calc_confidence()
@@ -167,7 +162,7 @@ def command() -> None:
                     stats['not_in_dir_movable'] += 1
                     print_ident_result('File not in cam directory, can automatically move to cam dir \'{identified_cam_name}\'', 'yellow')
                 else:
-                    new_directory = os.path.join(path.parent.resolve(), identified_cam_name)
+                    new_directory = os.path.join(media_file.path_info.parent.resolve(), identified_cam_name)
 
                     if not os.path.exists(new_directory):
                         os.mkdir(new_directory)
@@ -177,10 +172,10 @@ def command() -> None:
                         print_ident_result(f'File not in cam directory, but cam dir \'{identified_cam_name}\' exists and is not directory!', 'red')
                         return
                     
-                    new_path = os.path.join(new_directory, path.name)
+                    new_path = os.path.join(new_directory, media_file.path_info.name)
 
                     ## TODO: Build logic to also move any sidecar files that may be present
-                    path.rename(new_path)
+                    media_file.path_info.rename(new_path)
 
                     stats['in_proper_directory'] += 1
                     print_ident_result(f'File not in cam directory, moved to cam dir \'{identified_cam_name}\'', 'yellow')

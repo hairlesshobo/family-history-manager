@@ -1,15 +1,21 @@
 from __future__ import annotations
+import json
+import subprocess
+from typing import Any, Callable, Dict
+from classes.media_file import MediaFile
+
+from modules.config import Config
 
 import os
 import pathlib
 
-from typing import Any, Callable, Dict
 
-from modules.config import Config
+# Types
+ProcessMediaFileCallback = Callable[[MediaFile, int, Callable[[str], None]], bool]
 
-def scan_raw_media(
-    process_file: Callable[[str, pathlib.Path, int, Callable[[], None]], None]
-) -> None:
+
+def scan_raw_media(process_file: ProcessMediaFileCallback) -> None:
+    """Scan the raw media tree, calling the provided function on each found media file"""
     return scan_media(
         Config.directories.raw.root,
         process_file,
@@ -18,9 +24,10 @@ def scan_raw_media(
         Config.directories.raw.exclude
     )
 
+
 def scan_media(
     root_path: str,
-    process_file: Callable[[str, pathlib.Path, int, Callable[[], None]], None],
+    process_file: ProcessMediaFileCallback,
     extensions: list[str] = list(),
     include_paths: list[str] = list(),
     exclude_paths: list[str] = list(),
@@ -44,7 +51,7 @@ def scan_media(
     file_paths.sort()
 
 
-    def rename_dir(new_dir_name: str) -> None:
+    def rename_dir(new_dir_name: str) -> bool:
         nonlocal file_paths, root_path
 
         path = pathlib.Path(root_path)
@@ -65,34 +72,47 @@ def scan_media(
 
     for dir_path in dir_paths:
         # print(f'   DIR: {dir_path}')
-        scan_media(dir_path, process_file, extensions, include_paths, exclude_paths, depth + 1)
+        if scan_media(dir_path, process_file, extensions, include_paths, exclude_paths, depth + 1) == False:
+            return False
     
     for file_path in file_paths:
+        media_file = MediaFile()
+        media_file.parse_file(file_path)
+
         # if a list of allowed extensions was provided, we skip any files that do not in the approved list
         if len(extensions) > 0:
-            path = pathlib.Path(file_path)
-
-            extension = path.suffix[1:]
-            # file_basename = path.name[:-len(extension) - 1]
-
-            if extension not in extensions:
+            if media_file.extension not in extensions:
                 # print(f'SKIP-E: {file_path}')
                 continue
 
         # skip any paths that are defined in our exclude_paths directive
-        if any(file_path.startswith(x) for x in exclude_paths):
+        if any(media_file.path.startswith(x) for x in exclude_paths):
             # print(f'  EXCL: {file_path}')
             continue
 
         # if a list of include paths is configued, we require the current path to be in the list
         # else we skip the current path
         if len(include_paths) > 0:
-            if not any(file_path.startswith(x) for x in include_paths):
+            if not any(media_file.path.startswith(x) for x in include_paths):
                 # print(f'N-INCL: {file_path}')
                 continue
+
         
         # print(f'  FILE: {file_path}')
 
 
         # if we made it this far, we execute the callback to process the file
-        process_file(file_path, path, depth, rename_dir)
+        if process_file(media_file, depth, rename_dir) == False:
+            return False
+
+
+def read_media_info(file_path: str) -> Any:
+    """Read the mediainfo for the provided file path and retun a dctionary containing the metadata""" 
+
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(file_path)
+
+    # Read metadata using `mediainfo` tool
+    proc = subprocess.run(['mediainfo', '--Output=JSON', file_path], stdout=subprocess.PIPE)
+
+    return json.loads(proc.stdout)

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from . import static
+from modules import static
 
 from typing import Any
 

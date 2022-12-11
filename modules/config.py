@@ -1,14 +1,13 @@
 from __future__ import annotations
+from datetime import datetime
+from typing import Any
+
+from classes.cam_profile import CamProfile
+from classes.hint import Hint
 
 import logging
 import os
 import yaml
-
-from datetime import datetime
-from typing import Any
-from modules.cam_profile import CamProfile
-
-from modules.hint import Hint
 
 
 class DirConfig:

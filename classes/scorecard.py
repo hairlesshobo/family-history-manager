@@ -1,5 +1,5 @@
-from modules.hint import Hint
-from . import static
+from classes.hint import Hint
+from modules import static
 
 import logging
 import re

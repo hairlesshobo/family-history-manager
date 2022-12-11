@@ -1,5 +1,5 @@
 from datetime import datetime
-from modules.hint import Hint
+from classes.hint import Hint
 
 
 class CamProfile:

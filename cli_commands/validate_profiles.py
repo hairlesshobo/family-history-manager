@@ -1,7 +1,7 @@
 import click
 
 from modules import static
-from modules.cam_signature import CamSignature
+from classes.cam_signature import CamSignature
 from modules.config import Config
 
 
