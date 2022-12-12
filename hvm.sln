@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{AC50723B-5C5D-4A3C-A278-889E715C3C24}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxHollow.HVM", "src\FoxHollow.HVM\FoxHollow.HVM.csproj", "{C7E26ED5-B7BF-4BCC-A3A2-488ABCCEAC50}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxHollow.HVM.Core", "src\FoxHollow.HVM.Core\FoxHollow.HVM.Core.csproj", "{4F4B643C-93F6-4572-A86B-BE913CB0D978}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C7E26ED5-B7BF-4BCC-A3A2-488ABCCEAC50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7E26ED5-B7BF-4BCC-A3A2-488ABCCEAC50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7E26ED5-B7BF-4BCC-A3A2-488ABCCEAC50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7E26ED5-B7BF-4BCC-A3A2-488ABCCEAC50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F4B643C-93F6-4572-A86B-BE913CB0D978}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F4B643C-93F6-4572-A86B-BE913CB0D978}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F4B643C-93F6-4572-A86B-BE913CB0D978}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F4B643C-93F6-4572-A86B-BE913CB0D978}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C7E26ED5-B7BF-4BCC-A3A2-488ABCCEAC50} = {AC50723B-5C5D-4A3C-A278-889E715C3C24}
+		{4F4B643C-93F6-4572-A86B-BE913CB0D978} = {AC50723B-5C5D-4A3C-A278-889E715C3C24}
+	EndGlobalSection
+EndGlobal
