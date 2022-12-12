@@ -479,3 +479,4 @@ $RECYCLE.BIN/
 
 ### Custom added ignore patterns
 /output
+/python-scrapped/config/**.yaml
