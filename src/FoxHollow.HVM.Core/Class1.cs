@@ -1,5 +1,8 @@
-﻿namespace FoxHollow.HVM.Core;
-public class Class1
+﻿
+namespace FoxHollow.HVM.Core
 {
+    public class Class1
+    {
 
+    }
 }
