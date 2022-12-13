@@ -5,9 +5,9 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{AC50723B-5C5D-4A3C-A278-889E715C3C24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxHollow.HVM", "src\FoxHollow.HVM\FoxHollow.HVM.csproj", "{C7E26ED5-B7BF-4BCC-A3A2-488ABCCEAC50}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxHollow.FHM", "src\FoxHollow.FHM\FoxHollow.FHM.csproj", "{C7E26ED5-B7BF-4BCC-A3A2-488ABCCEAC50}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxHollow.HVM.Core", "src\FoxHollow.HVM.Core\FoxHollow.HVM.Core.csproj", "{4F4B643C-93F6-4572-A86B-BE913CB0D978}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxHollow.FHM.Core", "src\FoxHollow.FHM.Core\FoxHollow.FHM.Core.csproj", "{4F4B643C-93F6-4572-A86B-BE913CB0D978}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

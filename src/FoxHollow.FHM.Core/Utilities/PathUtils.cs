@@ -1,5 +1,5 @@
 // /**
-//  *  HVM - Cross platform, home video management utility
+//  *  FHM - Cross platform, home video management utility
 //  * 
 //  *  Copyright (c) 2022 Steve Cross <flip@foxhollow.cc>
 //  *

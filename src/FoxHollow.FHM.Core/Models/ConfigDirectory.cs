@@ -1,4 +1,4 @@
-namespace FoxHollow.HVM.Core.Classes
+namespace FoxHollow.FHM.Core.Classes
 {
     public class ConfigDirectory
     {

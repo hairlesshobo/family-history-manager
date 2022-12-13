@@ -1,6 +1,6 @@
 using System;
 
-namespace FoxHollow.HVM.Core.Utilities
+namespace FoxHollow.FHM.Core.Utilities
 {
     public class SourceFileScanner
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace FoxHollow.HVM.Core.Operations
+namespace FoxHollow.FHM.Core.Operations
 {
     public class GenerateRawMediaSidecarOperation
     {

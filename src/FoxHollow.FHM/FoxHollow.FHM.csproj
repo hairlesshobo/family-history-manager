@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\FoxHollow.HVM.Core\FoxHollow.HVM.Core.csproj" />
+    <ProjectReference Include="..\FoxHollow.FHM.Core\FoxHollow.FHM.Core.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

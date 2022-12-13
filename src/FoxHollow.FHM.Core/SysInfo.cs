@@ -1,9 +1,9 @@
 using System;
 using System.IO;
 using System.Text.Json;
-using FoxHollow.HVM.Core.Classes;
+using FoxHollow.FHM.Core.Classes;
 
-namespace FoxHollow.HVM
+namespace FoxHollow.FHM
 {
     public static class SysInfo
     {
