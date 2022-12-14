@@ -1,30 +1,37 @@
 using System;
-using System.IO;
-using System.Text.Json;
 using FoxHollow.FHM.Core.Classes;
 
-namespace FoxHollow.FHM
+namespace FoxHollow.FHM.Core
 {
-    public static class SysInfo
+    public static class AppConfig
     {
         public static bool Initialized { get; private set; }
-        public static string ExecutionRoot { get; private set; }
         public static Config Config { get; private set; }
-
-        static SysInfo()
-        {
-            ExecutionRoot = AppContext.BaseDirectory;
-        }
 
         public static void InitPlatform()
         {
-            if (!Initialized)
+            if (!AppConfig.Initialized)
             {
-                // using (FileSteam stream = File.Open())
-                // Config = JsonSerializer.Deserialize<Config>()
+                // _config = ConfigUtils.ReadConfig(out _configErrors);
+
+                // _directories = new SystemDirectories();
+                // _directories.Bin = PathUtils.CleanPath(AppContext.BaseDirectory);
+                // _directories.Index = PathUtils.ResolveRelativePath(Path.Combine(_directories.Bin, "../"));
+                // _directories.JSON = PathUtils.CleanPathCombine(_directories.Index, "json");
+                // _directories.ISO = PathUtils.CleanPathCombine(_directories.Index, "../iso");
+                // _directories.DiscStaging = (
+                //       !String.IsNullOrWhiteSpace(Config.Disc.StagingDir) 
+                //     ? PathUtils.ResolveRelativePath(Path.Combine(_directories.Index, Config.Disc.StagingDir)) 
+                //     : PathUtils.CleanPath(Path.Combine(Path.GetTempPath(), Path.GetTempFileName()))
+                // );
+
+                // _isOpticalDrivePresent = OpticalDriveUtils.GetDriveNames().Any();
+                // _isReadonlyFilesystem = TestForReadonlyFs();
+                // _isTapeDrivePresent = TapeUtilsNew.IsTapeDrivePresent();
+
+                AppConfig.Initialized = true;
             }
         }
-
         /// <summary>
         ///     Class that describes the system directories
         /// </summary>

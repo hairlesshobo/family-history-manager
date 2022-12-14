@@ -1,0 +1,3 @@
+[submodule "src/FoxHollow.FHM.Shared"]
+	path = src/FoxHollow.FHM.Shared
+	url = ssh://git@git.foxhollow.cc:4022/family-history/shared.git
