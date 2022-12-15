@@ -7,33 +7,9 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/src/FoxHollow.FHM/FoxHollow.FHM.csproj",
+                "${workspaceFolder}/source/FoxHollow.FHM/FoxHollow.FHM.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
-            ],
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "publish",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "publish",
-                "${workspaceFolder}/src/FoxHollow.FHM/FoxHollow.FHM.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
-            ],
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "watch",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "watch",
-                "run",
-                "--project",
-                "${workspaceFolder}/src/FoxHollow.FHM/FoxHollow.FHM.csproj"
             ],
             "problemMatcher": "$msCompile"
         }

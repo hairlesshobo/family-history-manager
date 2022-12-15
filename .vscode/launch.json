@@ -10,20 +10,15 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/FoxHollow.FHM/bin/Debug/net7.0/FoxHollow.FHM.dll",
+            "program": "${workspaceFolder}/bin/FoxHollow.FHM.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/FoxHollow.FHM",
+            "cwd": "${workspaceFolder}/source/FoxHollow.FHM",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false,
             "logging": {
                 "moduleLoad": false
             }
-        },
-        {
-            "name": ".NET Core Attach",
-            "type": "coreclr",
-            "request": "attach"
         }
     ]
 }
