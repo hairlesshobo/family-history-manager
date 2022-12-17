@@ -1,6 +1,6 @@
-namespace FoxHollow.FHM.Core.Classes
+namespace FoxHollow.FHM.Core.Models
 {
-    public class ConfigDirectory
+    public class AppConfigDirectory
     {
         public string Root { get; set; }
         public string[] Include { get; set; }
