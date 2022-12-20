@@ -6,6 +6,9 @@ using FoxHollow.FHM.Core.Operations;
 
 AppInfo.InitPlatform();
 
+// TODO: implement dependency injection
+// https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection-usage
+
 var cts = new CancellationTokenSource();
 
 var generator = new GenerateRawMediaSidecarOperation();

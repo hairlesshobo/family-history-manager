@@ -88,15 +88,18 @@ def command(profiles_dir: str, media_file: str) -> None:
     identified_cam_name = cam_name_mappings[scores[0][0]]
 
     result = {
-        'file_path': media_file_path,
-        'mediainfo_path': mediainfo_file_path,
-        'identified_cam_name': identified_cam_name,
-        'confidence': confidence,
-        'confidence_pass': confidence_pass,
-        'scores': dict(scores)
+        "type": "result",
+        "payload": {
+            'file_path': media_file_path,
+            'mediainfo_path': mediainfo_file_path,
+            'identified_cam_name': identified_cam_name,
+            'confidence': confidence,
+            'confidence_pass': confidence_pass,
+            'scores': dict(scores)
+        }
     }
 
-    print(json.dumps(result, indent=True))
+    print(json.dumps(result))
 
 
 def _load_cam_profiles(profile_dir_path: str) -> dict[str, CamProfile]:
