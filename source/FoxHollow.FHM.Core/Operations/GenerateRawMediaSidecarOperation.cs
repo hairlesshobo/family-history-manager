@@ -34,9 +34,13 @@ namespace FoxHollow.FHM.Core.Operations
 
                 string profilesDir = Path.Combine(SysInfo.ConfigRoot, "profiles");
 
-                using (var pyop = new PythonInterop<IdentifyCameraProgress, IdentifyCameraResult>("identify-camera", profilesDir, entry.Path))
+                using (var pyop = new PyIdentifyCamera(entry.Path))
                 {
                     var result = await pyop.RunAsync(ctk);
+                    pyop.OnProgressChanged += (progress) =>
+                    {
+                        // Console.
+                    };
 
                     Console.WriteLine(result.IdentifiedCamName);
                 }
