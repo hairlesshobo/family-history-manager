@@ -11,6 +11,6 @@ AppInfo.InitPlatform();
 
 var cts = new CancellationTokenSource();
 
-var generator = new GenerateRawMediaSidecarOperation();
+var generator = new OrganizeRawMediaOperation();
 await generator.StartAsync(cts.Token);
 
