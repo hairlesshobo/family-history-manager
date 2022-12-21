@@ -11,6 +11,8 @@ using FoxHollow.FHM.Shared.Interop;
 using FoxHollow.FHM.Shared.Interop.Models;
 using FoxHollow.FHM.Shared.Models.Video;
 using FoxHollow.FHM.Shared.Utilities.Serialization;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
@@ -20,8 +22,17 @@ namespace FoxHollow.FHM.Core.Operations
 {
     public class OrganizeRawMediaOperation
     {
+        private IServiceProvider _services;
+        private ILogger _logger;
+        
         public bool Simulation { get; set; } = true;
         public bool RescanKnownCamDirs { get; set; } = true;
+
+        public OrganizeRawMediaOperation(IServiceProvider provider)
+        {
+            _services = provider;
+            _logger = provider.GetRequiredService<ILogger<OrganizeRawMediaOperation>>();
+        }
 
         public async Task StartAsync(CancellationToken ctk)
         {
@@ -47,7 +58,7 @@ namespace FoxHollow.FHM.Core.Operations
             await foreach (var entry in scanner.StartScanAsync())
             {
                 //! TODO: status update here
-                Console.WriteLine($"{entry.RelativeDepth}: {entry.Path}");
+                _logger.LogInformation($"{entry.RelativeDepth}: {entry.Path}");
 
                 // now we build some logic to to determine if the video is organized properly
                 // into a known camera folder. camera folders currently live at a depth of 3
@@ -68,11 +79,11 @@ namespace FoxHollow.FHM.Core.Operations
 
                 // Generate sidecar files
                 //! TODO: status update here
-                var sidecar = await RawSidecar.LoadOrGenerateAsync(entry.Path, true);
+                var sidecar = await RawSidecar.LoadOrGenerateAsync(_logger, entry.Path, true);
 
                 // Identify camera
                 //! TODO: status update here
-                var pyop = new PyIdentifyCamera(entry.Path);
+                var pyop = new PyIdentifyCamera(_services, entry.Path);
                 var identifyCamResult = await pyop.RunAsync(ctk);
                 pyop.Dispose();
 
@@ -161,7 +172,7 @@ namespace FoxHollow.FHM.Core.Operations
                         if (this.Simulation)
                         {
                             stats["NotInDirMovable"] += 1;
-                            Console.WriteLine("File not in cam directory, can automatically move to cam dir \'{identified_cam_name}\'");
+                            Console.WriteLine($"File not in cam directory, can automatically move to cam dir '{identifyCamResult.IdentifiedCamName}'");
                         }
                         else
                         {
@@ -194,7 +205,7 @@ namespace FoxHollow.FHM.Core.Operations
                     }
                 }
 
-                // break;
+                break;
             }
 
             Console.WriteLine($"Summary:");
