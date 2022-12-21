@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using FoxHollow.FHM.Core;
 using FoxHollow.FHM.Core.Operations;
 using FoxHollow.FHM.Shared;
+using FoxHollow.FHM.Shared.Utilities;
 
 namespace FoxHollow.FHM
 {
@@ -20,7 +21,7 @@ namespace FoxHollow.FHM
             RegisterServices();
 
             // Call main entry point of the application
-            var service = _serviceProvider.GetService<IMainService>();
+            var service = _serviceProvider.GetService<MainService>();
             await service.RunAsync();
 
             DisposeServices();
@@ -42,7 +43,9 @@ namespace FoxHollow.FHM
                     options.TimestampFormat = "HH:mm:ss ";
                 });
             });
-            collection.AddScoped<IMainService, MainService>();
+            collection.AddScoped<RawVideoUtils>();
+            collection.AddScoped<MediainfoUtils>();
+            collection.AddScoped<MainService>();
 
             _serviceProvider = collection.BuildServiceProvider();
         }

@@ -8,9 +8,10 @@ using FoxHollow.FHM.Core.Operations;
 
 namespace FoxHollow.FHM
 {
-    internal class MainService : IMainService
+    internal class MainService
     {
         private IServiceProvider _serviceProvider;
+        
         public MainService(IServiceProvider provider)
         {
             _serviceProvider = provider;

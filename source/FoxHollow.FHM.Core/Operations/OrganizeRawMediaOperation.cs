@@ -10,6 +10,7 @@ using FoxHollow.FHM.Shared.Classes;
 using FoxHollow.FHM.Shared.Interop;
 using FoxHollow.FHM.Shared.Interop.Models;
 using FoxHollow.FHM.Shared.Models.Video;
+using FoxHollow.FHM.Shared.Utilities;
 using FoxHollow.FHM.Shared.Utilities.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -36,6 +37,8 @@ namespace FoxHollow.FHM.Core.Operations
 
         public async Task StartAsync(CancellationToken ctk)
         {
+            var rawVideoUtils = _services.GetRequiredService<RawVideoUtils>();
+
             List<string> knownCamNames = AppInfo.CameraProfiles.Select(x => x.Name).ToList();
 
             var scanner = new TreeWalker(AppInfo.Config.Directories.Raw.Root);
@@ -73,13 +76,14 @@ namespace FoxHollow.FHM.Core.Operations
 
                 if (dirIsKnownCam && !this.RescanKnownCamDirs)
                 {
+                    _logger.LogDebug("File is in a known cam dir, and not instructed to rescan, nothing to do.");
                     //! TODO: status update here
                     continue;
                 }
 
                 // Generate sidecar files
                 //! TODO: status update here
-                var sidecar = await RawSidecar.LoadOrGenerateAsync(_logger, entry.Path, true);
+                var sidecar = await rawVideoUtils.LoadOrGenerateAsync(entry.Path, true);
 
                 // Identify camera
                 //! TODO: status update here
@@ -93,7 +97,7 @@ namespace FoxHollow.FHM.Core.Operations
                 {
                     //! TODO: Status update here
                     stats["LocatedAtInvalidLevel"] += 1;
-                    Console.WriteLine($"Media file exists at unknown depth: {entry.RelativeDepth}");
+                    _logger.LogInformation($"Media file exists at unknown depth: {entry.RelativeDepth}");
                     continue;
                 }
 
@@ -111,7 +115,7 @@ namespace FoxHollow.FHM.Core.Operations
                             if (identifyCamResult.IdentifiedCamName == camDirName)
                             {
                                 stats["InProperDirectory"] += 1;
-                                Console.WriteLine("File in proper directory, nothing to do");
+                                _logger.LogInformation("File in proper directory, nothing to do");
                             }
 
                             // TODO: Do we want to auto rename if the dir is named wrong but we confidently know the cam profile?
@@ -120,7 +124,7 @@ namespace FoxHollow.FHM.Core.Operations
                             else
                             {
                                 stats["InCamDirNotCorrectCam"] += 1;
-                                Console.WriteLine("File in known cam dir, but cam not same as identified");
+                                _logger.LogInformation("File in known cam dir, but cam not same as identified");
                             }
                         }
 
@@ -129,7 +133,7 @@ namespace FoxHollow.FHM.Core.Operations
                         else
                         {
                             stats["InProperDirectoryTrusted"] += 1;
-                            Console.WriteLine("File in known cam directory but no confidence match, assume correct and nothing to do.");
+                            _logger.LogInformation("File in known cam directory but no confidence match, assume correct and nothing to do.");
                         }
                     }
 
@@ -144,13 +148,13 @@ namespace FoxHollow.FHM.Core.Operations
                             {
                                 stats["InProperDirectory"] += 1;
                                 // rename_dir(identifyCamResult.IdentifiedCamName)
-                                Console.WriteLine($"File in unknown cam directory.. dir renamed to \'{identifyCamResult.IdentifiedCamName}\'");
+                                _logger.LogInformation($"File in unknown cam directory.. dir renamed to \'{identifyCamResult.IdentifiedCamName}\'");
                             }
 
                             else
                             {
                                 stats["InUnknownCamDirMovable"] += 1;
-                                Console.WriteLine($"File in unknown cam directory.. dir to be renamed to \'{identifyCamResult.IdentifiedCamName}\'");
+                                _logger.LogInformation($"File in unknown cam directory.. dir to be renamed to \'{identifyCamResult.IdentifiedCamName}\'");
                             }
                         }
 
@@ -158,7 +162,7 @@ namespace FoxHollow.FHM.Core.Operations
                         else
                         {
                             stats["InUnknownCamDirNotMovable"] += 1;
-                            Console.WriteLine("File in unknown cam directory.. dir cannot be renamed automatically");
+                            _logger.LogInformation("File in unknown cam directory.. dir cannot be renamed automatically");
                         }
                     }
                 }
@@ -172,7 +176,7 @@ namespace FoxHollow.FHM.Core.Operations
                         if (this.Simulation)
                         {
                             stats["NotInDirMovable"] += 1;
-                            Console.WriteLine($"File not in cam directory, can automatically move to cam dir '{identifyCamResult.IdentifiedCamName}'");
+                            _logger.LogInformation($"File not in cam directory, can automatically move to cam dir '{identifyCamResult.IdentifiedCamName}'");
                         }
                         else
                         {
@@ -183,7 +187,7 @@ namespace FoxHollow.FHM.Core.Operations
                             else if (!Directory.Exists(new_directory))
                             {
                                 stats["NotInDirNotMovable"] += 1;
-                                Console.WriteLine($"File not in cam directory, but path '{identifyCamResult.IdentifiedCamName}' exists and is not directory!");
+                                _logger.LogInformation($"File not in cam directory, but path '{identifyCamResult.IdentifiedCamName}' exists and is not directory!");
                                 return;
                             }
 
@@ -193,7 +197,7 @@ namespace FoxHollow.FHM.Core.Operations
                             // media_file.path_info.rename(new_path)
 
                             stats["InProperDirectory"] += 1;
-                            Console.WriteLine($"File not in cam directory, moved to cam dir '{identifyCamResult.IdentifiedCamName}'");
+                            _logger.LogInformation($"File not in cam directory, moved to cam dir '{identifyCamResult.IdentifiedCamName}'");
                         }
                     }
 
@@ -201,23 +205,23 @@ namespace FoxHollow.FHM.Core.Operations
                     else
                     {
                         stats["NotInDirNotMovable"] += 1;
-                        Console.WriteLine("File not in cam directory, and must be moved to cam dir manually");
+                        _logger.LogInformation("File not in cam directory, and must be moved to cam dir manually");
                     }
                 }
 
                 break;
             }
 
-            Console.WriteLine($"Summary:");
-            Console.WriteLine($"----------------------------------------------------");
-            Console.WriteLine($"      located_at_invalid_level: {stats["LocatedAtInvalidLevel"]}");
-            Console.WriteLine($"           in_proper_directory: {stats["InProperDirectory"]}");
-            Console.WriteLine($"   in_proper_directory_trusted: {stats["InProperDirectoryTrusted"]}");
-            Console.WriteLine($"    in_cam_dir_not_correct_cam: {stats["InCamDirNotCorrectCam"]}");
-            Console.WriteLine($"    in_unknown_cam_dir_movable: {stats["InUnknownCamDirMovable"]}");
-            Console.WriteLine($"in_unknown_cam_dir_not_movable: {stats["InUnknownCamDirNotMovable"]}");
-            Console.WriteLine($"            not_in_dir_movable: {stats["NotInDirMovable"]}");
-            Console.WriteLine($"        not_in_dir_not_movable: {stats["NotInDirNotMovable"]}");
+            _logger.LogInformation($"Summary:");
+            _logger.LogInformation($"----------------------------------------------------");
+            _logger.LogInformation($"      located_at_invalid_level: {stats["LocatedAtInvalidLevel"]}");
+            _logger.LogInformation($"           in_proper_directory: {stats["InProperDirectory"]}");
+            _logger.LogInformation($"   in_proper_directory_trusted: {stats["InProperDirectoryTrusted"]}");
+            _logger.LogInformation($"    in_cam_dir_not_correct_cam: {stats["InCamDirNotCorrectCam"]}");
+            _logger.LogInformation($"    in_unknown_cam_dir_movable: {stats["InUnknownCamDirMovable"]}");
+            _logger.LogInformation($"in_unknown_cam_dir_not_movable: {stats["InUnknownCamDirNotMovable"]}");
+            _logger.LogInformation($"            not_in_dir_movable: {stats["NotInDirMovable"]}");
+            _logger.LogInformation($"        not_in_dir_not_movable: {stats["NotInDirNotMovable"]}");
         }
     }
 }
