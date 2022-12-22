@@ -17,7 +17,7 @@ namespace FoxHollow.FHM.Core.Operations
         private IServiceProvider _services;
         private ILogger _logger;
         
-        public bool Simulation { get; set; } = false;
+        public bool Simulation { get; set; } = true;
         public bool RescanKnownCamDirs { get; set; } = true;
 
         public OrganizeRawMediaOperation(IServiceProvider provider)
@@ -36,7 +36,7 @@ namespace FoxHollow.FHM.Core.Operations
             var treeWalker = treeWalkerFactory.GetWalker(AppInfo.Config.Directories.Raw.Root);
             treeWalker.IncludePaths = new List<string>(AppInfo.Config.Directories.Raw.Include);
             treeWalker.ExcludePaths = new List<string>(AppInfo.Config.Directories.Raw.Exclude);
-            treeWalker.Extensions = new List<string>(AppInfo.Config.Directories.Raw.Extensions);
+            treeWalker.IncludeExtensions = new List<string>(AppInfo.Config.Directories.Raw.Extensions);
 
             var stats = new Dictionary<string, uint>
             {
@@ -50,8 +50,15 @@ namespace FoxHollow.FHM.Core.Operations
                 {"InUnknownCamDirNotMovable", 0}
             };
 
-            await foreach (var entry in treeWalker.StartScanAsync())
+            await foreach (var collection in treeWalker.StartScanAsync())
             {
+                var entries = collection.Entries.Where(x => x.Ignored == false);
+
+                if (entries.Count() > 1)
+                    throw new Exception("More than one non-ignore media file entries, unknown how to proceed!");
+
+                var entry = entries.First();
+
                 //! TODO: status update here
                 _logger.LogInformation($"{entry.RelativeDepth}: {entry.Path}");
 
@@ -141,7 +148,7 @@ namespace FoxHollow.FHM.Core.Operations
                             if (!this.Simulation)
                             {
                                 stats["InProperDirectory"] += 1;
-                                entry.RenameDir(identifyCamResult.IdentifiedCamName);
+                                collection.RenameDir(identifyCamResult.IdentifiedCamName);
                                 _logger.LogInformation($"File in unknown cam directory.. dir renamed to \'{identifyCamResult.IdentifiedCamName}\'");
                             }
 
