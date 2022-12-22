@@ -2,22 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
-using FoxHollow.FHM.Shared;
 using FoxHollow.FHM.Shared.Classes;
 using FoxHollow.FHM.Shared.Interop;
-using FoxHollow.FHM.Shared.Interop.Models;
-using FoxHollow.FHM.Shared.Models.Video;
 using FoxHollow.FHM.Shared.Utilities;
-using FoxHollow.FHM.Shared.Utilities.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using YamlDotNet.Core;
-using YamlDotNet.Core.Events;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace FoxHollow.FHM.Core.Operations
 {
@@ -26,7 +17,7 @@ namespace FoxHollow.FHM.Core.Operations
         private IServiceProvider _services;
         private ILogger _logger;
         
-        public bool Simulation { get; set; } = true;
+        public bool Simulation { get; set; } = false;
         public bool RescanKnownCamDirs { get; set; } = true;
 
         public OrganizeRawMediaOperation(IServiceProvider provider)
@@ -38,13 +29,14 @@ namespace FoxHollow.FHM.Core.Operations
         public async Task StartAsync(CancellationToken ctk)
         {
             var rawVideoUtils = _services.GetRequiredService<RawVideoUtils>();
+            var treeWalkerFactory = _services.GetRequiredService<TreeWalkerFactory>();
 
             List<string> knownCamNames = AppInfo.CameraProfiles.Select(x => x.Name).ToList();
 
-            var scanner = new TreeWalker(AppInfo.Config.Directories.Raw.Root);
-            scanner.IncludePaths = new List<string>(AppInfo.Config.Directories.Raw.Include);
-            scanner.ExcludePaths = new List<string>(AppInfo.Config.Directories.Raw.Exclude);
-            scanner.Extensions = new List<string>(AppInfo.Config.Directories.Raw.Extensions);
+            var treeWalker = treeWalkerFactory.GetWalker(AppInfo.Config.Directories.Raw.Root);
+            treeWalker.IncludePaths = new List<string>(AppInfo.Config.Directories.Raw.Include);
+            treeWalker.ExcludePaths = new List<string>(AppInfo.Config.Directories.Raw.Exclude);
+            treeWalker.Extensions = new List<string>(AppInfo.Config.Directories.Raw.Extensions);
 
             var stats = new Dictionary<string, uint>
             {
@@ -58,10 +50,11 @@ namespace FoxHollow.FHM.Core.Operations
                 {"InUnknownCamDirNotMovable", 0}
             };
 
-            await foreach (var entry in scanner.StartScanAsync())
+            await foreach (var entry in treeWalker.StartScanAsync())
             {
                 //! TODO: status update here
                 _logger.LogInformation($"{entry.RelativeDepth}: {entry.Path}");
+
 
                 // now we build some logic to to determine if the video is organized properly
                 // into a known camera folder. camera folders currently live at a depth of 3
@@ -72,6 +65,7 @@ namespace FoxHollow.FHM.Core.Operations
                 // if we are deemed to be in a cam folder, lets check to see if it is a known camera
                 if (inCamDir)
                     camDirName = entry.FileInfo.Directory.Name;
+
                 dirIsKnownCam = knownCamNames.Contains(camDirName);
 
                 if (dirIsKnownCam && !this.RescanKnownCamDirs)
@@ -147,7 +141,7 @@ namespace FoxHollow.FHM.Core.Operations
                             if (!this.Simulation)
                             {
                                 stats["InProperDirectory"] += 1;
-                                // rename_dir(identifyCamResult.IdentifiedCamName)
+                                entry.RenameDir(identifyCamResult.IdentifiedCamName);
                                 _logger.LogInformation($"File in unknown cam directory.. dir renamed to \'{identifyCamResult.IdentifiedCamName}\'");
                             }
 
@@ -209,7 +203,7 @@ namespace FoxHollow.FHM.Core.Operations
                     }
                 }
 
-                break;
+                // break;
             }
 
             _logger.LogInformation($"Summary:");

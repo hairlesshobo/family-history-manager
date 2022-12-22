@@ -9,6 +9,7 @@ using FoxHollow.FHM.Core;
 using FoxHollow.FHM.Core.Operations;
 using FoxHollow.FHM.Shared;
 using FoxHollow.FHM.Shared.Utilities;
+using FoxHollow.FHM.Shared.Classes;
 
 namespace FoxHollow.FHM
 {
@@ -22,6 +23,7 @@ namespace FoxHollow.FHM
 
             // Call main entry point of the application
             var service = _serviceProvider.GetService<MainService>();
+
             await service.RunAsync();
 
             DisposeServices();
@@ -43,6 +45,7 @@ namespace FoxHollow.FHM
                     options.TimestampFormat = "HH:mm:ss ";
                 });
             });
+            collection.AddScoped<TreeWalkerFactory>();
             collection.AddScoped<RawVideoUtils>();
             collection.AddScoped<MediainfoUtils>();
             collection.AddScoped<MainService>();
