@@ -1,5 +1,0 @@
-Click==7.0
-Deprecated==1.2.13
-pep8==1.7.1
-PyYAML==6.0
-rich==12.6.0
