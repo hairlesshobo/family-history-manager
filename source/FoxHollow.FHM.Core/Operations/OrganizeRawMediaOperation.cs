@@ -17,7 +17,7 @@ namespace FoxHollow.FHM.Core.Operations
         private IServiceProvider _services;
         private ILogger _logger;
         
-        public bool Simulation { get; set; } = true;
+        public bool Simulation { get; set; } = false;
         public bool RescanKnownCamDirs { get; set; } = true;
 
         public OrganizeRawMediaOperation(IServiceProvider provider)
@@ -181,21 +181,19 @@ namespace FoxHollow.FHM.Core.Operations
                         }
                         else
                         {
-                            string new_directory = Path.Join(entry.FileInfo.DirectoryName, identifyCamResult.IdentifiedCamName);
+                            string newDirectory = Path.Join(entry.FileInfo.DirectoryName, identifyCamResult.IdentifiedCamName);
 
-                            if (!Path.Exists(new_directory))
-                                Directory.CreateDirectory(new_directory);
-                            else if (!Directory.Exists(new_directory))
+                            if (!Path.Exists(newDirectory))
+                                Directory.CreateDirectory(newDirectory);
+
+                            else if (!Directory.Exists(newDirectory))
                             {
                                 stats["NotInDirNotMovable"] += 1;
-                                _logger.LogInformation($"File not in cam directory, but path '{identifyCamResult.IdentifiedCamName}' exists and is not directory!");
+                                _logger.LogWarning($"File not in cam directory, but path '{identifyCamResult.IdentifiedCamName}' exists and is not directory!");
                                 return;
                             }
 
-                            string new_path = Path.Join(new_directory, entry.FileInfo.Name);
-
-                            // TODO: Build logic to also move any sidecar files that may be present
-                            // media_file.path_info.rename(new_path)
+                            collection.MoveCollection(newDirectory);
 
                             stats["InProperDirectory"] += 1;
                             _logger.LogInformation($"File not in cam directory, moved to cam dir '{identifyCamResult.IdentifiedCamName}'");
