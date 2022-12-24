@@ -28,6 +28,15 @@ namespace FoxHollow.FHM.Core.Operations
 
         public async Task StartAsync(CancellationToken ctk)
         {
+            //* overview:
+            //*   - sort raw media files and create sidecars
+            //*   - remove empty directories
+            //*   - create scene metadata
+            //*   - create event metadata
+
+            // TODO: actually use the cancellation token
+            var actionQueue = new ActionQueue();
+            
             var rawVideoUtils = _services.GetRequiredService<RawVideoUtils>();
             var treeWalkerFactory = _services.GetRequiredService<TreeWalkerFactory>();
 
@@ -102,6 +111,29 @@ namespace FoxHollow.FHM.Core.Operations
                     continue;
                 }
 
+                string eventDirPath = null;
+                
+                if (entry.RelativeDepth > 2)
+                {
+                    DirectoryInfo eventDirInfo = PathUtils.FindDirectoryAtRelativeDepth(collection.RootDirectoryPath, entry.FileInfo.Directory.FullName, 2);
+                    eventDirPath = eventDirInfo.FullName;
+                }
+
+                Action moveCollectionToCamDir = () =>
+                {
+                    string newDirectory = Path.Join(eventDirPath, identifyCamResult.IdentifiedCamName);
+
+                    actionQueue.Add(
+                        collection, 
+                        $"Move collection '{collection}' from '{collection.Directory.FullName}' to '{newDirectory}'",
+                        (action, ctk) =>
+                        {
+                            collection.MoveCollection(newDirectory, true);
+                            _logger.LogInformation($"Moved '{collection}' from '{collection.Directory.FullName}' to '{newDirectory}'");
+                        }
+                    );
+                };
+
 
                 // The file was located in a camera directory, which may or may not be known
                 if (inCamDir)
@@ -119,14 +151,10 @@ namespace FoxHollow.FHM.Core.Operations
                                 _logger.LogInformation("File in proper directory, nothing to do");
                             }
 
-                            // TODO: Do we want to auto rename if the dir is named wrong but we confidently know the cam profile?
-                            // The identified camera does NOT match the name of the dir, that means we have a mis-named directory
-                            // that needs to be corrected manually by the user
+                            // The collection is in a known cam dir, but not camera that was confidently
+                            // identified.. move to the correct location
                             else
-                            {
-                                stats["InCamDirNotCorrectCam"] += 1;
-                                _logger.LogInformation("File in known cam dir, but cam not same as identified");
-                            }
+                                moveCollectionToCamDir();
                         }
 
                         // The file is in a known camera dir but our scanner is not confident enough to confirm it. This means
@@ -143,21 +171,7 @@ namespace FoxHollow.FHM.Core.Operations
                     {
                         // The camera scanner confidence is high enough to rename the directory automatically
                         if (identifyCamResult.ConfidencePass)
-                        {
-                            // rename the directory to the new name
-                            if (!this.Simulation)
-                            {
-                                stats["InProperDirectory"] += 1;
-                                collection.RenameDir(identifyCamResult.IdentifiedCamName);
-                                _logger.LogInformation($"File in unknown cam directory.. dir renamed to \'{identifyCamResult.IdentifiedCamName}\'");
-                            }
-
-                            else
-                            {
-                                stats["InUnknownCamDirMovable"] += 1;
-                                _logger.LogInformation($"File in unknown cam directory.. dir to be renamed to \'{identifyCamResult.IdentifiedCamName}\'");
-                            }
-                        }
+                            moveCollectionToCamDir();
 
                         // the camera scanner confidence is NOT high enough to take any automatic action. manual user intervention required
                         else
@@ -173,32 +187,7 @@ namespace FoxHollow.FHM.Core.Operations
                 {
                     // We are confident of our camera identification, move the file to an appropriately named folder
                     if (identifyCamResult.ConfidencePass)
-                    {
-                        if (this.Simulation)
-                        {
-                            stats["NotInDirMovable"] += 1;
-                            _logger.LogInformation($"File not in cam directory, can automatically move to cam dir '{identifyCamResult.IdentifiedCamName}'");
-                        }
-                        else
-                        {
-                            string newDirectory = Path.Join(entry.FileInfo.DirectoryName, identifyCamResult.IdentifiedCamName);
-
-                            if (!Path.Exists(newDirectory))
-                                Directory.CreateDirectory(newDirectory);
-
-                            else if (!Directory.Exists(newDirectory))
-                            {
-                                stats["NotInDirNotMovable"] += 1;
-                                _logger.LogWarning($"File not in cam directory, but path '{identifyCamResult.IdentifiedCamName}' exists and is not directory!");
-                                return;
-                            }
-
-                            collection.MoveCollection(newDirectory);
-
-                            stats["InProperDirectory"] += 1;
-                            _logger.LogInformation($"File not in cam directory, moved to cam dir '{identifyCamResult.IdentifiedCamName}'");
-                        }
-                    }
+                        moveCollectionToCamDir();
 
                     // Our camera confidence is not high enough to automatically move the file, user must move manually
                     else
@@ -209,6 +198,12 @@ namespace FoxHollow.FHM.Core.Operations
                 }
 
                 // break;
+            }
+
+            if (!this.Simulation)
+            {
+                _logger.LogInformation("Beginning to perform actions!");
+                await actionQueue.ExecuteAll(ctk);
             }
 
             _logger.LogInformation($"Summary:");
