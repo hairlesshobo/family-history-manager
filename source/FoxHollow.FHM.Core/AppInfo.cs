@@ -19,21 +19,6 @@ namespace FoxHollow.FHM.Core
                 AppInfo.Config = ConfigUtils.LoadConfig();
                 AppInfo.CameraProfiles = ConfigUtils.LoadCameraProfiles();
 
-                // _directories = new SystemDirectories();
-                // new name: platform
-                // _directories.Index = PathUtils.ResolveRelativePath(Path.Combine(_directories.Bin, "../"));
-                // _directories.JSON = PathUtils.CleanPathCombine(_directories.Index, "json");
-                // _directories.ISO = PathUtils.CleanPathCombine(_directories.Index, "../iso");
-                // _directories.DiscStaging = (
-                //       !String.IsNullOrWhiteSpace(Config.Disc.StagingDir) 
-                //     ? PathUtils.ResolveRelativePath(Path.Combine(_directories.Index, Config.Disc.StagingDir)) 
-                //     : PathUtils.CleanPath(Path.Combine(Path.GetTempPath(), Path.GetTempFileName()))
-                // );
-
-                // _isOpticalDrivePresent = OpticalDriveUtils.GetDriveNames().Any();
-                // _isReadonlyFilesystem = TestForReadonlyFs();
-                // _isTapeDrivePresent = TapeUtilsNew.IsTapeDrivePresent();
-
                 AppInfo.Initialized = true;
             }
         }

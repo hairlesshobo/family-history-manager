@@ -6,7 +6,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using FoxHollow.FHM.Shared.Classes;
 using FoxHollow.FHM.Shared.Interop;
+using FoxHollow.FHM.Shared.Models;
 using FoxHollow.FHM.Shared.Utilities;
+using FoxHollow.FHM.Shared.Utilities.Serialization;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -14,8 +17,15 @@ namespace FoxHollow.FHM.Core.Operations
 {
     public class OrganizeRawMediaOperation
     {
+        //* Folder Depths:
+        //* 0: root
+        //* 1: year [2022]
+        //* 2: event [2022-12-25 -- Christmas]
+        //* 3: scene [Sony HVR-Z1U]
+
         private IServiceProvider _services;
         private ILogger _logger;
+        private IConfiguration _config;
         
         public bool Simulation { get; set; } = false;
         public bool RescanKnownCamDirs { get; set; } = true;
@@ -24,6 +34,7 @@ namespace FoxHollow.FHM.Core.Operations
         {
             _services = provider;
             _logger = provider.GetRequiredService<ILogger<OrganizeRawMediaOperation>>();
+            _config = provider.GetRequiredService<IConfiguration>();
         }
 
         public async Task StartAsync(CancellationToken ctk)
@@ -34,9 +45,38 @@ namespace FoxHollow.FHM.Core.Operations
             //*   - create scene metadata
             //*   - create event metadata
 
+            ActionQueue queue = null;
+
+            // Organize the raw video folders, grouping by capture camera
+            // queue = await this.OrganizeVideosByCamera(ctk);
+
+            // // TODO: find a way to yield to caller for verification before continuing to next step
+            // if (!this.Simulation)
+            // {
+            //     _logger.LogInformation("Beginning to apply raw camera organization actions!");
+            //     await queue.ExecuteAll(ctk);
+            // }
+            
+
+            // if (queue.Executed)
+            // {
+                // Create metadata for all valid scenes
+                queue = await this.CreateSceneMetadata(ctk);
+
+                // TODO: find a way to yield to caller for verification before continuing to next step
+                if (!this.Simulation)
+                {
+                    _logger.LogInformation("Beginning to apply scene metadata actions!");
+                    await queue.ExecuteAll(ctk);
+                }
+            // }
+        }
+
+        private async Task<ActionQueue> OrganizeVideosByCamera(CancellationToken ctk)
+        {
             // TODO: actually use the cancellation token
             var actionQueue = new ActionQueue();
-            
+
             var rawVideoUtils = _services.GetRequiredService<RawVideoUtils>();
             var treeWalkerFactory = _services.GetRequiredService<TreeWalkerFactory>();
 
@@ -93,7 +133,7 @@ namespace FoxHollow.FHM.Core.Operations
 
                 // Generate sidecar files
                 //! TODO: status update here
-                var sidecar = await rawVideoUtils.LoadOrGenerateAsync(entry.Path, true);
+                var sidecar = await rawVideoUtils.LoadOrGenerateRawVideoMetadataAsync(entry.Path, true);
 
                 // Identify camera
                 //! TODO: status update here
@@ -200,12 +240,6 @@ namespace FoxHollow.FHM.Core.Operations
                 // break;
             }
 
-            if (!this.Simulation)
-            {
-                _logger.LogInformation("Beginning to perform actions!");
-                await actionQueue.ExecuteAll(ctk);
-            }
-
             _logger.LogInformation($"Summary:");
             _logger.LogInformation($"----------------------------------------------------");
             _logger.LogInformation($"      located_at_invalid_level: {stats["LocatedAtInvalidLevel"]}");
@@ -216,6 +250,56 @@ namespace FoxHollow.FHM.Core.Operations
             _logger.LogInformation($"in_unknown_cam_dir_not_movable: {stats["InUnknownCamDirNotMovable"]}");
             _logger.LogInformation($"            not_in_dir_movable: {stats["NotInDirMovable"]}");
             _logger.LogInformation($"        not_in_dir_not_movable: {stats["NotInDirNotMovable"]}");
+
+            return actionQueue;
+        }
+    
+        private async Task<ActionQueue> CreateSceneMetadata(CancellationToken ctk)
+        {
+            var actionQueue = new ActionQueue();
+
+            var treeWalkerFactory = _services.GetRequiredService<TreeWalkerFactory>();
+
+            List<string> knownCamNames = AppInfo.CameraProfiles.Select(x => x.Name).ToList();
+
+            var treeWalker = treeWalkerFactory.GetWalker(AppInfo.Config.Directories.Raw.Root);
+            treeWalker.IncludePaths = new List<string>(AppInfo.Config.Directories.Raw.Include);
+            treeWalker.ExcludePaths = new List<string>(AppInfo.Config.Directories.Raw.Exclude);
+            treeWalker.IncludeExtensions = new List<string>(AppInfo.Config.Directories.Raw.Extensions);
+
+            List<string> processedDirs = new List<string>();
+
+            using (_logger.BeginScope("CreateSceneMetadata"))
+            {
+                await foreach (var collection in treeWalker.StartScanAsync())
+                {
+                    // we only want to process a given scene directory one time
+                    if (processedDirs.Contains(collection.Directory.FullName))
+                        continue;
+
+                    var relativeDepth = collection.Entries.First().RelativeDepth;
+                    if (relativeDepth != 3)
+                    {
+                        _logger.LogTrace($"Skipped collection {collection.Name} because depth {relativeDepth} != 3");
+                        continue;
+                    }
+
+                    var camName = collection.Directory.Name;
+
+                    var camProfile = AppInfo.CameraProfiles.FirstOrDefault(x => x.Name == camName);
+
+                    if (camProfile == null)
+                    {
+                        _logger.LogTrace($"Skipped collection {collection.Name} because '{camName}' is not a known camera");
+                        continue;
+                    }
+
+                    //! TODO: status update here
+                    _logger.LogInformation($"{relativeDepth}: {camName}");
+                }
+            }
+
+            return actionQueue;
         }
     }
 }
