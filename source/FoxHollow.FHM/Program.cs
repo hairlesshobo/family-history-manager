@@ -45,9 +45,7 @@ namespace FoxHollow.FHM
                     options.TimestampFormat = "HH:mm:ss ";
                 });
             });
-            collection.AddScoped<TreeWalkerFactory>();
-            collection.AddScoped<RawVideoUtils>();
-            collection.AddScoped<MediainfoUtils>();
+            collection.AddFhmServices();
             collection.AddScoped<MainService>();
 
             _serviceProvider = collection.BuildServiceProvider();

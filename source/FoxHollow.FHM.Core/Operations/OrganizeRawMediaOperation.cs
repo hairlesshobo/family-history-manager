@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using FoxHollow.FHM.Shared.Classes;
 using FoxHollow.FHM.Shared.Interop;
 using FoxHollow.FHM.Shared.Models;
+using FoxHollow.FHM.Shared.Services;
 using FoxHollow.FHM.Shared.Utilities;
 using FoxHollow.FHM.Shared.Utilities.Serialization;
 using Microsoft.Extensions.Configuration;
@@ -47,7 +48,7 @@ namespace FoxHollow.FHM.Core.Operations
 
             ActionQueue queue = null;
 
-            // Organize the raw video folders, grouping by capture camera
+            // // Organize the raw video folders, grouping by capture camera
             // queue = await this.OrganizeVideosByCamera(ctk);
 
             // // TODO: find a way to yield to caller for verification before continuing to next step
@@ -69,8 +70,8 @@ namespace FoxHollow.FHM.Core.Operations
                     _logger.LogInformation("Beginning to apply scene metadata actions!");
                     await queue.ExecuteAll(ctk);
                 }
-            // }
-        }
+            }
+        // }
 
         private async Task<ActionQueue> OrganizeVideosByCamera(CancellationToken ctk)
         {
@@ -78,9 +79,8 @@ namespace FoxHollow.FHM.Core.Operations
             var actionQueue = new ActionQueue();
 
             var rawVideoUtils = _services.GetRequiredService<RawVideoUtils>();
-            var treeWalkerFactory = _services.GetRequiredService<TreeWalkerFactory>();
-
-            List<string> knownCamNames = AppInfo.CameraProfiles.Select(x => x.Name).ToList();
+            var treeWalkerFactory = _services.GetRequiredService<RawVideoTreeWalkerFactory>();
+            var camProfileService = _services.GetRequiredService<CamProfileService>();
 
             var treeWalker = treeWalkerFactory.GetWalker(AppInfo.Config.Directories.Raw.Root);
             treeWalker.IncludePaths = new List<string>(AppInfo.Config.Directories.Raw.Include);
@@ -122,7 +122,7 @@ namespace FoxHollow.FHM.Core.Operations
                 if (inCamDir)
                     camDirName = entry.FileInfo.Directory.Name;
 
-                dirIsKnownCam = knownCamNames.Contains(camDirName);
+                dirIsKnownCam = camProfileService.CamNames.Contains(camDirName);
 
                 if (dirIsKnownCam && !this.RescanKnownCamDirs)
                 {
@@ -258,44 +258,39 @@ namespace FoxHollow.FHM.Core.Operations
         {
             var actionQueue = new ActionQueue();
 
-            var treeWalkerFactory = _services.GetRequiredService<TreeWalkerFactory>();
+            var treeWalkerFactory = _services.GetRequiredService<RawVideoTreeWalkerFactory>();
+            var mediainfoUtils = _services.GetRequiredService<MediainfoUtils>();
+            // var camProfileService = _services.GetRequiredService<CamProfileService>();
 
-            List<string> knownCamNames = AppInfo.CameraProfiles.Select(x => x.Name).ToList();
+            // \u002B30.3571-081.8092/
+            // +30.3571-081.8092/
 
             var treeWalker = treeWalkerFactory.GetWalker(AppInfo.Config.Directories.Raw.Root);
             treeWalker.IncludePaths = new List<string>(AppInfo.Config.Directories.Raw.Include);
             treeWalker.ExcludePaths = new List<string>(AppInfo.Config.Directories.Raw.Exclude);
             treeWalker.IncludeExtensions = new List<string>(AppInfo.Config.Directories.Raw.Extensions);
 
-            List<string> processedDirs = new List<string>();
-
             using (_logger.BeginScope("CreateSceneMetadata"))
             {
-                await foreach (var collection in treeWalker.StartScanAsync())
+                foreach (var scene in treeWalker.FindRawVideoScenes())
                 {
-                    // we only want to process a given scene directory one time
-                    if (processedDirs.Contains(collection.Directory.FullName))
-                        continue;
-
-                    var relativeDepth = collection.Entries.First().RelativeDepth;
-                    if (relativeDepth != 3)
-                    {
-                        _logger.LogTrace($"Skipped collection {collection.Name} because depth {relativeDepth} != 3");
-                        continue;
-                    }
-
-                    var camName = collection.Directory.Name;
-
-                    var camProfile = AppInfo.CameraProfiles.FirstOrDefault(x => x.Name == camName);
-
-                    if (camProfile == null)
-                    {
-                        _logger.LogTrace($"Skipped collection {collection.Name} because '{camName}' is not a known camera");
-                        continue;
-                    }
-
                     //! TODO: status update here
-                    _logger.LogInformation($"{relativeDepth}: {camName}");
+                    _logger.LogDebug(scene.Path);
+
+                    if (scene.CameraProfile == null)
+                    {
+                        _logger.LogTrace($"Skipped scene '{scene.RootRelativePath}' because '{scene.CameraName}' is not a known camera");
+                        continue;
+                    }
+
+                    var sceneMetadata = new RawVideoScene()
+                    {
+                        Camera = scene.CameraProfile.Name,
+                        CameraID = scene.CameraProfile.ID,
+                        Location = new RawVideoSceneLocation()
+                    };
+
+                    // look for GPS coordinates
                 }
             }
 

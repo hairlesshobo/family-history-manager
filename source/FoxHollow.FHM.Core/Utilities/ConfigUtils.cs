@@ -17,23 +17,5 @@ namespace FoxHollow.FHM.Core.Utilities
 
             return HelpersNew.ReadJsonFileAsync<AppConfig>(configFile).Result;
         }
-
-        public static IReadOnlyList<CameraProfile> LoadCameraProfiles()
-        {
-            var profiles = new List<CameraProfile>();
-            var proflieDirPath = Path.Join(SysInfo.ConfigRoot, "profiles");
-            var filesPaths = Directory.GetFiles(proflieDirPath, "*.json");
-
-            foreach (var filePath in filesPaths)
-            {
-                using (var fileHandle = File.OpenRead(filePath))
-                {
-                    var camProfile = JsonSerializer.Deserialize<CameraProfile>(fileHandle, Static.DefaultJso);
-                    profiles.Add(camProfile);
-                }
-            }
-
-            return (IReadOnlyList<CameraProfile>)profiles;
-        }
     }
 }
