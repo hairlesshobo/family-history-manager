@@ -56,6 +56,7 @@ namespace FoxHollow.FHM
             IConfiguration config = new ConfigurationBuilder()
                 .SetBasePath(SysInfo.ConfigRoot)
                 .AddJsonFile("logging.json", optional: false, reloadOnChange: false)
+                .AddJsonFile("manager.json", optional: false, reloadOnChange: false)
                 .Build();
 
             return config;

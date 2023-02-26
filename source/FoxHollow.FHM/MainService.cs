@@ -11,7 +11,7 @@ namespace FoxHollow.FHM
     internal class MainService
     {
         private IServiceProvider _serviceProvider;
-        
+
         public MainService(IServiceProvider provider)
         {
             _serviceProvider = provider;
@@ -25,9 +25,11 @@ namespace FoxHollow.FHM
 
             var cts = new CancellationTokenSource();
 
-            var generator = new OrganizeRawMediaOperation(_serviceProvider);
+            // var organizer = new OrganizeRawMediaOperation(_serviceProvider);
+            // await organizer.StartAsync(cts.Token);
 
-            await generator.StartAsync(cts.Token);
+            var prepareTiff = new ProcessPhotosTiffOperation(_serviceProvider);
+            await prepareTiff.StartAsync(cts.Token);
         }
     }
 }
