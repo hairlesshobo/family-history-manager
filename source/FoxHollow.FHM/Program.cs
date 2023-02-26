@@ -9,13 +9,14 @@ using FoxHollow.FHM.Shared.Utilities;
 using FoxHollow.FHM.Shared.Classes;
 using System.DirectoryServices.ActiveDirectory;
 using Microsoft.Extensions.Logging.Console;
+using FoxHollow.FHM.Core.Models;
 
 namespace FoxHollow.FHM
 {
     public class Program
     {
         private static IServiceProvider _serviceProvider;
-        
+
         private static async Task Main()
         {
             RegisterServices();
@@ -32,9 +33,14 @@ namespace FoxHollow.FHM
         {
             var config = Configure();
 
+            var configModel = new AppConfig();
+
+            config.Bind(configModel);
+
             var collection = new ServiceCollection();
             collection.AddSingleton<IConfiguration>(config);
-            collection.AddLogging(logging => 
+            collection.AddSingleton<AppConfig>(configModel);
+            collection.AddLogging(logging =>
             {
                 logging.AddConfiguration(config.GetSection("Logging"));
                 logging.AddSimpleConsole(options =>

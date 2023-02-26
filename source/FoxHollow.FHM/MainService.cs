@@ -28,7 +28,7 @@ namespace FoxHollow.FHM
             // var organizer = new OrganizeRawMediaOperation(_serviceProvider);
             // await organizer.StartAsync(cts.Token);
 
-            var prepareTiff = new ProcessPhotosTiffOperation(_serviceProvider);
+            var prepareTiff = new ProcessPhotosOperation(_serviceProvider);
             await prepareTiff.StartAsync(cts.Token);
         }
     }
