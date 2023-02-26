@@ -27,7 +27,7 @@ namespace FoxHollow.FHM.Core.Operations
         private IServiceProvider _services;
         private ILogger _logger;
         private IConfiguration _config;
-        
+
         public bool Simulation { get; set; } = false;
         public bool RescanKnownCamDirs { get; set; } = true;
 
@@ -57,20 +57,20 @@ namespace FoxHollow.FHM.Core.Operations
             //     _logger.LogInformation("Beginning to apply raw camera organization actions!");
             //     await queue.ExecuteAll(ctk);
             // }
-            
+
 
             // if (queue.Executed)
             // {
-                // Create metadata for all valid scenes
-                queue = await this.CreateSceneMetadata(ctk);
+            // Create metadata for all valid scenes
+            queue = await this.CreateSceneMetadata(ctk);
 
-                // TODO: find a way to yield to caller for verification before continuing to next step
-                if (!this.Simulation)
-                {
-                    _logger.LogInformation("Beginning to apply scene metadata actions!");
-                    await queue.ExecuteAll(ctk);
-                }
+            // TODO: find a way to yield to caller for verification before continuing to next step
+            if (!this.Simulation)
+            {
+                _logger.LogInformation("Beginning to apply scene metadata actions!");
+                await queue.ExecuteAll(ctk);
             }
+        }
         // }
 
         private async Task<ActionQueue> OrganizeVideosByCamera(CancellationToken ctk)
@@ -79,7 +79,7 @@ namespace FoxHollow.FHM.Core.Operations
             var actionQueue = new ActionQueue();
 
             var rawVideoUtils = _services.GetRequiredService<RawVideoUtils>();
-            var treeWalkerFactory = _services.GetRequiredService<RawVideoTreeWalkerFactory>();
+            var treeWalkerFactory = _services.GetRequiredService<MediaTreeWalkerFactory>();
             var camProfileService = _services.GetRequiredService<CamProfileService>();
 
             var treeWalker = treeWalkerFactory.GetWalker(AppInfo.Config.Directories.Raw.Root);
@@ -152,7 +152,7 @@ namespace FoxHollow.FHM.Core.Operations
                 }
 
                 string eventDirPath = null;
-                
+
                 if (entry.RelativeDepth > 2)
                 {
                     DirectoryInfo eventDirInfo = PathUtils.FindDirectoryAtRelativeDepth(collection.RootDirectoryPath, entry.FileInfo.Directory.FullName, 2);
@@ -164,7 +164,7 @@ namespace FoxHollow.FHM.Core.Operations
                     string newDirectory = Path.Join(eventDirPath, identifyCamResult.IdentifiedCamName);
 
                     actionQueue.Add(
-                        collection, 
+                        collection,
                         $"Move collection '{collection}' from '{collection.Directory.FullName}' to '{newDirectory}'",
                         (action, ctk) =>
                         {
@@ -253,12 +253,12 @@ namespace FoxHollow.FHM.Core.Operations
 
             return actionQueue;
         }
-    
+
         private async Task<ActionQueue> CreateSceneMetadata(CancellationToken ctk)
         {
             var actionQueue = new ActionQueue();
 
-            var treeWalkerFactory = _services.GetRequiredService<RawVideoTreeWalkerFactory>();
+            var treeWalkerFactory = _services.GetRequiredService<MediaTreeWalkerFactory>();
             var mediainfoUtils = _services.GetRequiredService<MediainfoUtils>();
             // var camProfileService = _services.GetRequiredService<CamProfileService>();
 

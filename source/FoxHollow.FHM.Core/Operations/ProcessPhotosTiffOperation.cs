@@ -58,7 +58,7 @@ public class ProcessPhotosTiffOperation
         // TODO: actually use the cancellation token
         var actionQueue = new ActionQueue();
 
-        var treeWalkerFactory = _services.GetRequiredService<RawVideoTreeWalkerFactory>();
+        var treeWalkerFactory = _services.GetRequiredService<MediaTreeWalkerFactory>();
 
         var treeWalker = treeWalkerFactory.GetWalker(_config.Photos.Tiff.Directories.Root);
         treeWalker.IncludePaths = new List<string>(_config.Photos.Tiff.Directories.Include);
