@@ -42,7 +42,7 @@ public class ProcessPhotosOperation
         var processor = new PhotoProcessor(_services)
         {
             Directory = _config.Photos.Tiff.Directories.Root,
-            Recursive = true,
+            Recursive = false,
             ThumbnailSize = _config.Photos.ThumbnailSize,
             ThumbnailExtension = _config.Photos.ThumbnailExtension,
             PreviewSize = _config.Photos.PreviewSize,
