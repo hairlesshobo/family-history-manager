@@ -3,6 +3,7 @@ using Avalonia.ReactiveUI;
 using FoxHollow.FHM.Core.Models;
 using FoxHollow.FHM.Shared;
 using FoxHollow.FHM.Shared.Utilities;
+using FoxHollow.FHM.UI.Views;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -58,13 +59,17 @@ class Program
                 options.SingleLine = true;
                 options.TimestampFormat = "HH:mm:ss ";
             });
+            logging.AddTextBoxLogger(options =>
+            {
+                options.Destination = MainWindow.LogBox;
+            });
         });
         collection.AddFhmServices();
         // collection.AddScoped<MainService>();
 
         var resolver = new MicrosoftDependencyResolver(collection);
         Locator.SetLocator(resolver);
-        
+
         Services = collection.BuildServiceProvider();
     }
 

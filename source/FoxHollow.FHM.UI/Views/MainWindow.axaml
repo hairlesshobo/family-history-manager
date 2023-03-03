@@ -15,6 +15,22 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid RowDefinitions="4*, 1*">
+        <StackPanel Grid.Row="0" Background="Green">
+            <TextBlock HorizontalAlignment="Center" Text="{Binding Greeting}"/>
+            <Button HorizontalAlignment="Center" 
+                    Command="{Binding TestCommand}" 
+                    Content="Test Injection" />
+        </StackPanel>
+        <TextBox Name="logBox"
+                 AcceptsReturn="True" 
+                 IsReadOnly="True"
+                 Grid.Row="1"
+                 Focusable="False">
+        </TextBox>
+        <!-- <Grid DockPanel.Dock="Bottom" Background="#FF00FF">
+            <TextBlock HorizontalAlignment="Center" Text="MEOW!!" />
+        </Grid> -->
+    </Grid>
 
 </Window>
