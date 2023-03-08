@@ -15,8 +15,8 @@ public class ProcessPhotosOperation
     private ILogger _logger;
     private AppConfig _config;
 
-    public bool Simulation { get; set; } = false;
-    public bool RescanKnownCamDirs { get; set; } = true;
+    public bool Recursive { get; set; } = false;
+    public string RootDirectory { get; set; }
 
     public ProcessPhotosOperation(IServiceProvider provider)
     {
@@ -30,8 +30,8 @@ public class ProcessPhotosOperation
     {
         var processor = new PhotoProcessor(_services)
         {
-            Directory = _config.Photos.Tiff.Directories.Root,
-            Recursive = false,
+            Directory = this.RootDirectory,
+            Recursive = this.Recursive,
             ThumbnailSize = _config.Photos.ThumbnailSize,
             ThumbnailExtension = _config.Photos.ThumbnailExtension,
             PreviewSize = _config.Photos.PreviewSize,

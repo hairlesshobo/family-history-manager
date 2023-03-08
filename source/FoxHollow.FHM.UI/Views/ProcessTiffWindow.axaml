@@ -1,0 +1,48 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:FoxHollow.FHM.UI.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="250"
+        x:Class="FoxHollow.FHM.UI.Views.ProcessTiffWindow"
+        x:DataType="vm:ProcessTiffWindowViewModel"
+        Icon="/Assets/tree2.png"
+        Title="Family History Manager">
+
+    <!-- tree <a href="https://www.flaticon.com/free-icons/tree" title="tree icons">Tree icons created by Freepik - Flaticon</a> -->
+    <!-- tree2 <a href="https://www.flaticon.com/free-icons/tree" title="tree icons">Tree icons created by Umeicon - Flaticon</a> -->
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:ProcessTiffWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid RowDefinitions="4*, 1*">
+        <StackPanel Grid.Row="0">
+            <TextBlock HorizontalAlignment="Center" Text="Process TIFF photos:" Margin="0,0,0,20" />
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Text="Directory: " VerticalAlignment="Center" />
+                <TextBox Width="250" Text="{Binding RootDirectory}" />
+                <Button Content="Select Directory" Click="OnClick_SelectDirectory" />
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <CheckBox IsChecked="{Binding RecursiveScan}">Perform recursive scan</CheckBox>
+            </StackPanel>
+            
+            <Button HorizontalAlignment="Center" 
+                    Command="{Binding RunProcess}"
+                    IsEnabled="{Binding FormValid}"
+                    Content="Run Process" />
+        </StackPanel>
+        <TextBox Name="logBox"
+                 AcceptsReturn="True" 
+                 IsReadOnly="True"
+                 Grid.Row="1"
+                 Focusable="False">
+        </TextBox>
+    </Grid>
+
+</Window>
