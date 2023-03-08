@@ -2,8 +2,8 @@
 using Avalonia.ReactiveUI;
 using FoxHollow.FHM.Core.Models;
 using FoxHollow.FHM.Shared;
+using FoxHollow.FHM.Shared.Services;
 using FoxHollow.FHM.Shared.Utilities;
-using FoxHollow.FHM.UI.Views;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -49,6 +49,7 @@ class Program
         var collection = new ServiceCollection();
         collection.AddSingleton<IConfiguration>(config);
         collection.AddSingleton<AppConfig>(configModel);
+        collection.AddFhmStartupServices();
         collection.AddLogging(logging =>
         {
             logging.AddConfiguration(config.GetSection("Logging"));
@@ -59,10 +60,7 @@ class Program
                 options.SingleLine = true;
                 options.TimestampFormat = "HH:mm:ss ";
             });
-            logging.AddTextBoxLogger(options =>
-            {
-                options.Destination = MainWindow.LogBox;
-            });
+            logging.AddEventLogger();
         });
         collection.AddFhmServices();
         // collection.AddScoped<MainService>();

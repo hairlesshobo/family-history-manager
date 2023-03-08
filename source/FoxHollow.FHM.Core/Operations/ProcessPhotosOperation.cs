@@ -1,22 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using FoxHollow.FHM.Core.Models;
 using FoxHollow.FHM.Shared.Classes;
-using FoxHollow.FHM.Shared.Models;
-using FoxHollow.FHM.Shared.Utilities;
-using FoxHollow.FHM.Shared.Utilities.Serialization;
-using ImageMagick;
-using ImageMagick.Formats;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.SqlServer.Server;
 
 namespace FoxHollow.FHM.Core.Operations;
 
