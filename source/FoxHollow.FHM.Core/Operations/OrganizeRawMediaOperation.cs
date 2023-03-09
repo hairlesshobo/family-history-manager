@@ -17,6 +17,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FoxHollow.FHM.Core.Models;
 using FoxHollow.FHM.Shared.Classes;
 using FoxHollow.FHM.Shared.Interop;
 using FoxHollow.FHM.Shared.Models;
@@ -39,7 +40,7 @@ namespace FoxHollow.FHM.Core.Operations
 
         private IServiceProvider _services;
         private ILogger _logger;
-        private IConfiguration _config;
+        private AppConfig _config;
 
         public bool Simulation { get; set; } = false;
         public bool RescanKnownCamDirs { get; set; } = true;
@@ -48,7 +49,7 @@ namespace FoxHollow.FHM.Core.Operations
         {
             _services = provider;
             _logger = provider.GetRequiredService<ILogger<OrganizeRawMediaOperation>>();
-            _config = provider.GetRequiredService<IConfiguration>();
+            _config = provider.GetRequiredService<AppConfig>();
         }
 
         public async Task StartAsync(CancellationToken ctk)
@@ -95,10 +96,10 @@ namespace FoxHollow.FHM.Core.Operations
             var treeWalkerFactory = _services.GetRequiredService<MediaTreeWalkerFactory>();
             var camProfileService = _services.GetRequiredService<CamProfileService>();
 
-            var treeWalker = treeWalkerFactory.GetWalker(AppInfo.Config.Directories.Raw.Root);
-            treeWalker.IncludePaths = new List<string>(AppInfo.Config.Directories.Raw.Include);
-            treeWalker.ExcludePaths = new List<string>(AppInfo.Config.Directories.Raw.Exclude);
-            treeWalker.IncludeExtensions = new List<string>(AppInfo.Config.Directories.Raw.Extensions);
+            var treeWalker = treeWalkerFactory.GetWalker(_config.Directories.Raw.Root);
+            treeWalker.IncludePaths = new List<string>(_config.Directories.Raw.Include);
+            treeWalker.ExcludePaths = new List<string>(_config.Directories.Raw.Exclude);
+            treeWalker.IncludeExtensions = new List<string>(_config.Directories.Raw.Extensions);
 
             var stats = new Dictionary<string, uint>
             {
@@ -278,10 +279,10 @@ namespace FoxHollow.FHM.Core.Operations
             // \u002B30.3571-081.8092/
             // +30.3571-081.8092/
 
-            var treeWalker = treeWalkerFactory.GetWalker(AppInfo.Config.Directories.Raw.Root);
-            treeWalker.IncludePaths = new List<string>(AppInfo.Config.Directories.Raw.Include);
-            treeWalker.ExcludePaths = new List<string>(AppInfo.Config.Directories.Raw.Exclude);
-            treeWalker.IncludeExtensions = new List<string>(AppInfo.Config.Directories.Raw.Extensions);
+            var treeWalker = treeWalkerFactory.GetWalker(_config.Directories.Raw.Root);
+            treeWalker.IncludePaths = new List<string>(_config.Directories.Raw.Include);
+            treeWalker.ExcludePaths = new List<string>(_config.Directories.Raw.Exclude);
+            treeWalker.IncludeExtensions = new List<string>(_config.Directories.Raw.Extensions);
 
             using (_logger.BeginScope("CreateSceneMetadata"))
             {

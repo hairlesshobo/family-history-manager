@@ -34,8 +34,6 @@ namespace FoxHollow.FHM
         {
             var logger = _serviceProvider.GetRequiredService<ILogger<MainService>>();
 
-            AppInfo.InitPlatform();
-
             var cts = new CancellationTokenSource();
 
             // var organizer = new OrganizeRawMediaOperation(_serviceProvider);
