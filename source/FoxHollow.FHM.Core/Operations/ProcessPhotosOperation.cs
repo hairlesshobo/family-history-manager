@@ -39,22 +39,36 @@ public class ProcessPhotosOperation
         _config = provider.GetRequiredService<AppConfig>();
     }
 
-    public async Task StartAsync(CancellationToken ctk)
+    public async Task<ActionQueue> StartAsync(CancellationToken cToken)
     {
-        var processor = new PhotoProcessor(_services)
-        {
-            Directory = this.RootDirectory,
-            Recursive = this.Recursive,
-            ThumbnailSize = _config.Photos.ThumbnailSize,
-            ThumbnailExtension = _config.Photos.ThumbnailExtension,
-            PreviewSize = _config.Photos.PreviewSize,
-            PreviewExtension = _config.Photos.PreviewExtension,
-            IncludePaths = _config.Photos.Tiff.Directories.Include.ToList(),
-            ExcludePaths = _config.Photos.Tiff.Directories.Exclude.ToList(),
-            IncludeExtensions = _config.Photos.Tiff.Directories.Extensions.ToList()
-        };
+        _logger.LogInformation("Starting to process photos");
 
-        await processor.ProcessPhotos(ctk);
+        try
+        {
+            var processor = new PhotoProcessor(_services)
+            {
+                Directory = this.RootDirectory,
+                Recursive = this.Recursive,
+                ThumbnailSize = _config.Photos.ThumbnailSize,
+                ThumbnailExtension = _config.Photos.ThumbnailExtension,
+                PreviewSize = _config.Photos.PreviewSize,
+                PreviewExtension = _config.Photos.PreviewExtension,
+                IncludePaths = _config.Photos.Tiff.Directories.Include.ToList(),
+                ExcludePaths = _config.Photos.Tiff.Directories.Exclude.ToList(),
+                IncludeExtensions = _config.Photos.Tiff.Directories.Extensions.ToList()
+            };
+
+            var queue = await processor.ProcessPhotos(cToken);
+
+            _logger.LogInformation("Photo processing complete!");
+
+            return queue;
+        }
+        catch (TaskCanceledException)
+        {
+            _logger.LogInformation("Photo processing CANCELLED!");
+            return new ActionQueue();
+        }
     }
 
 }

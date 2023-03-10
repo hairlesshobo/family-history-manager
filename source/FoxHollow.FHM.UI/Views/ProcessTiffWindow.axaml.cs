@@ -12,13 +12,26 @@
  */
 
 using System;
+using System.Collections.Specialized;
+using System.ServiceModel;
 using Avalonia;
+using Avalonia.Automation.Peers;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
+using Avalonia.LogicalTree;
+using Avalonia.Media;
+using Avalonia.Platform.Storage;
 using FoxHollow.FHM.Shared.Services;
+using FoxHollow.FHM.UI.Classes;
 using FoxHollow.FHM.UI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using ReactiveUI;
 using Splat;
 
 namespace FoxHollow.FHM.UI.Views;
@@ -26,36 +39,68 @@ namespace FoxHollow.FHM.UI.Views;
 public partial class ProcessTiffWindow : Window
 {
     private Microsoft.Extensions.Logging.ILogger _logger;
+    private IEventLoggerEventService _eventLoggerService;
+    private TextBox _logBox;
 
     public ProcessTiffWindow()
     {
         InitializeComponent();
+    }
 
-        _logger = Locator.Current.GetService<ILogger<ProcessTiffWindow>>();
+    private void LogCallback(string level, string message)
+    {
+        _logBox.Text += message;
+    }
 
-        var eventLoggerService = Program.Services.GetRequiredService<IEventLoggerEventService>();
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
 
-        var logBox = this.GetControl<TextBox>("logBox");
+    protected override void OnLoaded()
+    {           
+        base.OnLoaded();
+    }
 
-        Action<string, string> logCallback = (level, message) =>
-        {
-            logBox.Text += message;
-        };
+    protected override void OnOpened(EventArgs e)
+    {
+        if (_logger == null)
+            _logger = Locator.Current.GetRequiredService<ILogger<ProcessTiffWindow>>();
 
-        eventLoggerService.RegisterLogDestination(logCallback);
+        if (_eventLoggerService == null)
+            _eventLoggerService = Locator.Current.GetRequiredService<IEventLoggerEventService>();
+
+        _logBox = this.GetControl<TextBox>("logBox");
+
+        _eventLoggerService.RegisterLogDestination(LogCallback);
+
+        // TODO: This is for debugging only
+        ((ProcessTiffWindowViewModel)this.DataContext).ParentWindow = this;
+
+        base.OnOpened(e);
+    }
+
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        _eventLoggerService.UnregisterLogDestination(LogCallback);
+        _logBox = null;
+
+        base.OnClosing(e);
     }
 
     private async void OnClick_SelectDirectory(object sender, RoutedEventArgs e)
     {
         _logger.LogInformation("meow");
 
-        var dialog = new OpenFolderDialog();
-        var result = await dialog.ShowAsync(this);
+        var result = await this.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        {
+            AllowMultiple = false
+        });
 
-        if (result != null)
+        if (result?.Count > 0)
         {
             var context = (ProcessTiffWindowViewModel)this.DataContext;
-            context.RootDirectory = result;
+            context.RootDirectory = result[0].Path.AbsolutePath;
         }
     }
 }

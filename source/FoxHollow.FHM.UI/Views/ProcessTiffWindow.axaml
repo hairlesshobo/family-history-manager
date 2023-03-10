@@ -16,7 +16,9 @@
         xmlns:vm="using:FoxHollow.FHM.UI.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="250"
+        mc:Ignorable="d" 
+        d:DesignWidth="900" d:DesignHeight="550"
+        Width="900" Height="550"
         x:Class="FoxHollow.FHM.UI.Views.ProcessTiffWindow"
         x:DataType="vm:ProcessTiffWindowViewModel"
         Icon="/Assets/tree3-edit.png"
@@ -32,7 +34,7 @@
         <vm:ProcessTiffWindowViewModel/>
     </Design.DataContext>
 
-    <Grid RowDefinitions="4*, 1*">
+    <Grid RowDefinitions="1*, 3*">
         <StackPanel Grid.Row="0">
             <TextBlock HorizontalAlignment="Center" Text="Process TIFF photos:" Margin="0,0,0,20" />
 
@@ -46,10 +48,17 @@
                 <CheckBox IsChecked="{Binding RecursiveScan}">Perform recursive scan</CheckBox>
             </StackPanel>
             
-            <Button HorizontalAlignment="Center" 
-                    Command="{Binding RunProcess}"
-                    IsEnabled="{Binding FormValid}"
-                    Content="Run Process" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button HorizontalAlignment="Center"
+                        Command="{Binding CancelProcess}"
+                        IsEnabled="{Binding IsRunning}"
+                        Content="Cancel" />
+
+                <Button HorizontalAlignment="Center" 
+                        Command="{Binding RunProcess}"
+                        IsEnabled="{Binding FormValid}"
+                        Content="Run Process" />
+            </StackPanel>
         </StackPanel>
         <TextBox Name="logBox"
                  AcceptsReturn="True" 
