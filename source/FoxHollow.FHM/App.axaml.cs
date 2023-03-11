@@ -14,10 +14,10 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using FoxHollow.FHM.UI.ViewModels;
-using FoxHollow.FHM.UI.Views;
+using FoxHollow.FHM.ViewModels;
+using FoxHollow.FHM.Views;
 
-namespace FoxHollow.FHM.UI;
+namespace FoxHollow.FHM;
 
 public partial class App : Application
 {

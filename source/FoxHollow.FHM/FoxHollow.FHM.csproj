@@ -1,4 +1,4 @@
-<!--
+﻿<!--
   Family History Manager - https://code.foxhollow.cc/fhm/
  
   A cross platform tool to help organize and preserve all types
@@ -14,15 +14,39 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    
+
     <AssemblyName>FamilyHistoryManager</AssemblyName>
     <OutputPath>../../bin/</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\" />
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TrimmerRootAssembly Include="Avalonia.Themes.Fluent" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.18" />   
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.18" />
+    <PackageReference Include="Avalonia" Version="0.10.18" />
+    <PackageReference Include="MessageBox.Avalonia" Version="2.1.0" />
+    <PackageReference Include="Splat.Microsoft.Extensions.DependencyInjection" Version="14.6.8" />
+    <PackageReference Include="XamlNameReferenceGenerator" Version="1.6.1" />
+
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="0.10.18" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FoxHollow.FHM.Core\FoxHollow.FHM.Core.csproj" />

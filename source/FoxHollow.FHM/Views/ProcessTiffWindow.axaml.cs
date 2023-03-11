@@ -17,13 +17,13 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using FoxHollow.FHM.Shared.Services;
-using FoxHollow.FHM.UI.Classes;
-using FoxHollow.FHM.UI.ViewModels;
+using FoxHollow.FHM.Classes;
+using FoxHollow.FHM.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Splat;
 
-namespace FoxHollow.FHM.UI.Views;
+namespace FoxHollow.FHM.Views;
 
 public partial class ProcessTiffWindow : Window
 {

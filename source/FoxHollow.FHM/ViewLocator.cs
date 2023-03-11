@@ -14,9 +14,9 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using FoxHollow.FHM.UI.ViewModels;
+using FoxHollow.FHM.ViewModels;
 
-namespace FoxHollow.FHM.UI;
+namespace FoxHollow.FHM;
 
 public class ViewLocator : IDataTemplate
 {

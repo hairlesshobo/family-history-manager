@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Splat;
 
-namespace FoxHollow.FHM.UI.Classes;
+namespace FoxHollow.FHM.Classes;
 
 public static class Extensions
 {

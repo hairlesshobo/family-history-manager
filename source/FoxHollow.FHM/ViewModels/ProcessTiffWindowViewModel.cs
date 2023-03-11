@@ -27,7 +27,7 @@ using Microsoft.Extensions.Hosting.Internal;
 using ReactiveUI;
 using Splat;
 
-namespace FoxHollow.FHM.UI.ViewModels;
+namespace FoxHollow.FHM.ViewModels;
 
 public class ProcessTiffWindowViewModel : ViewModelBase
 {

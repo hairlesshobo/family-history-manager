@@ -2,12 +2,12 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "build_cli",
             "command": "dotnet",
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/source/FoxHollow.FHM/FoxHollow.FHM.csproj",
+                "${workspaceFolder}/source/FoxHollow.FHM.Cli/FoxHollow.FHM.Cli.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/source/FoxHollow.FHM.UI/FoxHollow.FHM.UI.csproj",
+                "${workspaceFolder}/source/FoxHollow.FHM/FoxHollow.FHM.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],

@@ -13,7 +13,7 @@
 
 using ReactiveUI;
 
-namespace FoxHollow.FHM.UI.ViewModels;
+namespace FoxHollow.FHM.ViewModels;
 
 public class ViewModelBase : ReactiveObject
 {
