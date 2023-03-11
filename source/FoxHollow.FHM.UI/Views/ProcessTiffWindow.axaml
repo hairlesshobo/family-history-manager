@@ -19,6 +19,7 @@
         mc:Ignorable="d" 
         d:DesignWidth="900" d:DesignHeight="550"
         Width="900" Height="550"
+        WindowStartupLocation="CenterScreen"
         x:Class="FoxHollow.FHM.UI.Views.ProcessTiffWindow"
         x:DataType="vm:ProcessTiffWindowViewModel"
         Icon="/Assets/tree3-edit.png"

@@ -9,6 +9,6 @@
 		"explorer.fileNesting.patterns": {
 			"*.axaml": "${capture}.axaml.cs",
 			"*.xaml": "${capture}.xaml.cs"
-		  }
+		}
 	}
 }

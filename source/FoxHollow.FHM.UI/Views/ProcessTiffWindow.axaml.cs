@@ -12,26 +12,15 @@
  */
 
 using System;
-using System.Collections.Specialized;
-using System.ServiceModel;
+using System.ComponentModel;
 using Avalonia;
-using Avalonia.Automation.Peers;
 using Avalonia.Controls;
-using Avalonia.Controls.Presenters;
-using Avalonia.Controls.Primitives;
-using Avalonia.Data;
-using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Layout;
-using Avalonia.LogicalTree;
-using Avalonia.Media;
-using Avalonia.Platform.Storage;
 using FoxHollow.FHM.Shared.Services;
 using FoxHollow.FHM.UI.Classes;
 using FoxHollow.FHM.UI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using ReactiveUI;
 using Splat;
 
 namespace FoxHollow.FHM.UI.Views;
@@ -54,22 +43,17 @@ public partial class ProcessTiffWindow : Window
 
     protected override void OnInitialized()
     {
-        base.OnInitialized();
-    }
-
-    protected override void OnLoaded()
-    {           
-        base.OnLoaded();
-    }
-
-    protected override void OnOpened(EventArgs e)
-    {
         if (_logger == null)
             _logger = Locator.Current.GetRequiredService<ILogger<ProcessTiffWindow>>();
 
         if (_eventLoggerService == null)
             _eventLoggerService = Locator.Current.GetRequiredService<IEventLoggerEventService>();
 
+        base.OnInitialized();
+    }
+
+    protected override void OnOpened(EventArgs e)
+    {
         _logBox = this.GetControl<TextBox>("logBox");
 
         _eventLoggerService.RegisterLogDestination(LogCallback);
@@ -80,7 +64,7 @@ public partial class ProcessTiffWindow : Window
         base.OnOpened(e);
     }
 
-    protected override void OnClosing(WindowClosingEventArgs e)
+    protected override void OnClosing(CancelEventArgs e)
     {
         _eventLoggerService.UnregisterLogDestination(LogCallback);
         _logBox = null;
@@ -92,15 +76,25 @@ public partial class ProcessTiffWindow : Window
     {
         _logger.LogInformation("meow");
 
-        var result = await this.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
-        {
-            AllowMultiple = false
-        });
+        var dialog = new OpenFolderDialog();
+        var result = await dialog.ShowAsync(this);
 
-        if (result?.Count > 0)
+        if (result != null)
         {
             var context = (ProcessTiffWindowViewModel)this.DataContext;
-            context.RootDirectory = result[0].Path.AbsolutePath;
+            context.RootDirectory = result;
         }
+
+        // TODO: Once Avalonia 11 is released, this will be used instead
+        // var result = await this.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        // {
+        //     AllowMultiple = false
+        // });
+
+        // if (result?.Count > 0)
+        // {
+        //     var context = (ProcessTiffWindowViewModel)this.DataContext;
+        //     context.RootDirectory = result[0].Path.AbsolutePath;
+        // }
     }
 }

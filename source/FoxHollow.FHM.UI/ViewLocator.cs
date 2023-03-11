@@ -20,7 +20,7 @@ namespace FoxHollow.FHM.UI;
 
 public class ViewLocator : IDataTemplate
 {
-    public Control Build(object data)
+    public IControl Build(object data)
     {
         var name = data.GetType().FullName!.Replace("ViewModel", "View");
         var type = Type.GetType(name);

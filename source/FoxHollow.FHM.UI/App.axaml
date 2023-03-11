@@ -21,8 +21,15 @@
     </Application.DataTemplates>
 
     <Application.Styles>
-        <SimpleTheme />
+        <FluentTheme Mode="Dark" />
     </Application.Styles>
     
-    <Application.RequestedThemeVariant>Dark</Application.RequestedThemeVariant>
+    <!-- For avalonia 11: -->
+    <!--
+    <Application.Styles>
+        <SimpleTheme />
+    </Application.Styles>
+
+    <Application.RequestedThemeVariant>Dark</Application.RequestedThemeVariant> 
+    -->
 </Application>
