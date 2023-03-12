@@ -12,11 +12,9 @@
  */
 
 using System;
-using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using FoxHollow.FHM.Shared.Services;
 using FoxHollow.FHM.Classes;
 using FoxHollow.FHM.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,48 +26,20 @@ namespace FoxHollow.FHM.Views;
 public partial class ProcessTiffWindowView : Window
 {
     private Microsoft.Extensions.Logging.ILogger _logger;
-    private IEventLoggerEventService _eventLoggerService;
-    private TextBox _logBox;
 
     public ProcessTiffWindowView()
     {
         InitializeComponent();
-    }
 
-    private void LogCallback(string level, string message)
-    {
-        _logBox.Text += message;
-    }
-
-    protected override void OnInitialized()
-    {
         if (_logger == null)
             _logger = Locator.Current.GetRequiredService<ILogger<ProcessTiffWindowView>>();
 
-        if (_eventLoggerService == null)
-            _eventLoggerService = Locator.Current.GetRequiredService<IEventLoggerEventService>();
-
-        base.OnInitialized();
+        this.DataContext = new ProcessTiffWindowViewModel();
     }
 
     protected override void OnOpened(EventArgs e)
     {
-        _logBox = this.GetControl<TextBox>("logBox");
-
-        _eventLoggerService.RegisterLogDestination(LogCallback);
-
-        // TODO: This is for debugging only
-        ((ProcessTiffWindowViewModel)this.DataContext).ParentWindow = this;
-
         base.OnOpened(e);
-    }
-
-    protected override void OnClosing(CancelEventArgs e)
-    {
-        _eventLoggerService.UnregisterLogDestination(LogCallback);
-        _logBox = null;
-
-        base.OnClosing(e);
     }
 
     private async void OnClick_SelectDirectory(object sender, RoutedEventArgs e)

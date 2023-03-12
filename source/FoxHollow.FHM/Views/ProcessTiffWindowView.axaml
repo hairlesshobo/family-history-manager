@@ -16,14 +16,13 @@
         xmlns:vm="using:FoxHollow.FHM.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" 
-        d:DesignWidth="900" d:DesignHeight="550"
-        Width="900" Height="550"
-        WindowStartupLocation="CenterScreen"
         x:Class="FoxHollow.FHM.Views.ProcessTiffWindowView"
         x:DataType="vm:ProcessTiffWindowViewModel"
-        Icon="/Assets/tree3-edit.png"
-        Title="Family History Manager">
+        mc:Ignorable="d" 
+        d:DesignWidth="600" d:DesignHeight="250"
+        Width="600" Height="250"
+        WindowStartupLocation="CenterOwner"
+        Title="Photo Processor">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
@@ -31,38 +30,30 @@
         <vm:ProcessTiffWindowViewModel/>
     </Design.DataContext>
 
-    <Grid RowDefinitions="1*, 3*">
-        <StackPanel Grid.Row="0">
-            <TextBlock HorizontalAlignment="Center" Text="Process TIFF photos:" Margin="0,0,0,20" />
+    <StackPanel>
+        <TextBlock HorizontalAlignment="Center" Text="Process TIFF photos:" Margin="0,0,0,20" />
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <TextBlock Text="Directory: " VerticalAlignment="Center" />
-                <TextBox Width="250" Text="{Binding RootDirectory}" />
-                <Button Content="Select Directory" Click="OnClick_SelectDirectory" />
-            </StackPanel>
-
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <CheckBox IsChecked="{Binding RecursiveScan}">Perform recursive scan</CheckBox>
-            </StackPanel>
-            
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button HorizontalAlignment="Center"
-                        Command="{Binding CancelProcess}"
-                        IsEnabled="{Binding IsRunning}"
-                        Content="Cancel" />
-
-                <Button HorizontalAlignment="Center" 
-                        Command="{Binding RunProcess}"
-                        IsEnabled="{Binding FormValid}"
-                        Content="Run Process" />
-            </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock Text="Directory: " VerticalAlignment="Center" />
+            <TextBox Width="250" Text="{Binding RootDirectory}" />
+            <Button Content="Select Directory" Click="OnClick_SelectDirectory" />
         </StackPanel>
-        <TextBox Name="logBox"
-                 AcceptsReturn="True" 
-                 IsReadOnly="True"
-                 Grid.Row="1"
-                 Focusable="False">
-        </TextBox>
-    </Grid>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <CheckBox IsChecked="{Binding RecursiveScan}">Perform recursive scan</CheckBox>
+        </StackPanel>
+        
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button HorizontalAlignment="Center"
+                    Command="{Binding CancelProcess}"
+                    IsEnabled="{Binding IsRunning}"
+                    Content="Cancel" />
+
+            <Button HorizontalAlignment="Center" 
+                    Command="{Binding RunProcess}"
+                    IsEnabled="{Binding FormValid}"
+                    Content="Run Process" />
+        </StackPanel>
+    </StackPanel>
 
 </Window>

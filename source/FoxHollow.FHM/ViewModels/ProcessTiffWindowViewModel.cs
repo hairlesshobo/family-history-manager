@@ -69,7 +69,6 @@ public class ProcessTiffWindowViewModel : ViewModelBase
 
     // public ICommand RunProcess { get; }
     public ICommand CancelProcess { get; }
-    public Window ParentWindow { get; set; }
 
 
     /// <summary>
@@ -92,23 +91,14 @@ public class ProcessTiffWindowViewModel : ViewModelBase
         {
             Recursive = this.RecursiveScan,
             RootDirectory = this.RootDirectory
+            // TODO: Add "interactive" checkbox
+            // TODO: Add "keep backups" checkbox
         };
 
         // _config.Photos.Tiff.Directories.Root
 
         this.IsRunning = true;
-        // await operation.StartAsync(_cts.Token);
-
-        var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
-            new MessageBoxStandardParams()
-            {
-                ContentTitle = "Message!!",
-                ContentMessage = "This is the body. ooo yeah!",
-                Topmost = true,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner
-            });
-
-            await messageBoxStandardWindow.ShowDialog(this.ParentWindow);
+        await operation.StartAsync(_cts.Token);
 
         this.IsRunning = false;
     }

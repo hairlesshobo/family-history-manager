@@ -2,14 +2,48 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        x:Class="FoxHollow.FHM.Views.MainWindowView"
         mc:Ignorable="d" 
         d:DesignWidth="1200" d:DesignHeight="800"
         Width="1200"
         Height="800"
-        x:Class="FoxHollow.FHM.Views.MainWindowView"
-        Title="MainWindowView">
+        Icon="/Assets/tree3-edit.png"
+        Title="Family History Manager">
+
+  <Window.Styles>
+    <Style Selector="TabControl">
+      <Setter Property="Background" Value="#293038"/>
+      <Setter Property="Padding" Value="0"/>
+    </Style>
+    <Style Selector="TabControl WrapPanel">
+      <Setter Property="Background" Value="#2B579A"/>
+    </Style>
+
+    <Style Selector="TabItem">
+      <Setter Property="FontSize" Value="15"/>
+      <Setter Property="FontWeight" Value="Normal"/>
+      <Setter Property="Height" Value="24"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="Background" Value="#2B579A"/>
+      <Setter Property="Foreground" Value="#111418"/>
+      <Setter Property="Margin" Value="0 0 0 0"/>
+      <Setter Property="MinWidth" Value="100" />
+      <Setter Property="Padding" Value="15 0"/>
+    </Style>
+
+    <Style Selector="TabItem:selected">
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="Padding" Value="15 0"/>
+    </Style>
+
+    <Style Selector="Menu">
+      <Setter Property="Background" Value="#061019" />
+    </Style>
+
+  </Window.Styles>
   
-  <Grid ColumnDefinitions="*" RowDefinitions="Auto *">
+  <Grid ColumnDefinitions="*" RowDefinitions="Auto 2* 1*">
     <Menu Grid.Column="0" Grid.Row="0" Name="MainMenu">
       <MenuItem Header="_File">
         <MenuItem Header="_Open Directory" 
@@ -18,11 +52,26 @@
         <Separator />
         <MenuItem Header="E_xit" />
       </MenuItem>
+      <MenuItem Header="_Processing">
+        <MenuItem Header="_Photo Processor" Click="ShowTiffProcessor" />
+        <MenuItem Header="_Raw Video Processor" />
+      </MenuItem>
       <MenuItem Header="_Help">
         <MenuItem Header="_About" Click="ShowAboutWindow" />
       </MenuItem>
     </Menu>
     
+
+    <TabControl Grid.Row="2" Grid.Column="0">
+      <TabItem Header="Log Output" VerticalContentAlignment="Center">
+        <TextBox BorderThickness="0" 
+                 Background="#293038" 
+                 Name="logBox"
+                 AcceptsReturn="True" 
+                 IsReadOnly="True"
+                 Focusable="False" />
+      </TabItem>
+    </TabControl>
   </Grid>
 
 </Window>
