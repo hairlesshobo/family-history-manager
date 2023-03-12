@@ -1,0 +1,54 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:HyperText.Avalonia.Controls;assembly=HyperText.Avalonia"
+        x:Class="FoxHollow.FHM.Views.AboutWindowView"
+        mc:Ignorable="d" 
+        d:DesignWidth="600" d:DesignHeight="300"
+        Width="600" Height="300"
+        MaxWidth="600" MaxHeight="300"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Title="About Family History Manager">
+
+  <Window.Styles>
+    <Style Selector="TextBlock, controls|Hyperlink">
+      <Setter Property="Padding" Value="5" />
+    </Style>
+
+    <Style Selector="TextBlock.left">
+      <Setter Property="HorizontalAlignment" Value="Right" />
+    </Style>
+  </Window.Styles>
+  
+  <Grid RowDefinitions="Auto *" ColumnDefinitions="Auto *"
+        Margin="25">
+
+    <Image Grid.Row="0" Grid.Column="0" 
+           Grid.RowSpan="2"
+           Source="/Assets/tree3-edit.png" />
+
+    <TextBlock Grid.Row="0" Grid.Column="1" 
+               HorizontalAlignment="Center"
+               Padding="0 6"
+               FontSize="24" FontWeight="Bold"
+               Foreground="#9ec33b"
+               Text="Family History Manager" />
+
+    <Grid Grid.Row="1" Grid.Column="1"
+          RowDefinitions="Auto Auto Auto *" ColumnDefinitions="Auto *">
+
+          <TextBlock Grid.Row="0" Grid.Column="0" Classes="left" Text="Author" />
+          <controls:Hyperlink Grid.Row="0" Grid.Column="1" Classes="left" 
+                              Url="mailto:flip@foxhollow.cc" Alias="Steve Cross" />
+          
+          <TextBlock Grid.Row="1" Grid.Column="0" Classes="left" Text="Homepage:" />
+          <controls:Hyperlink Grid.Row="1" Grid.Column="1" 
+                              Url="https://code.foxhollow.cc/fhm/" />
+
+          
+          
+    </Grid>
+  </Grid>
+</Window>

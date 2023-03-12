@@ -30,9 +30,9 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new ProcessTiffWindow()
+            desktop.MainWindow = new MainWindowView()
             {
-                DataContext = new ProcessTiffWindowViewModel(),
+                DataContext = new object() //new ProcessTiffWindowViewModel(),
             };
         }
 

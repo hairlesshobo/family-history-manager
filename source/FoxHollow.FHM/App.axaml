@@ -14,6 +14,7 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:FoxHollow.FHM"
+             xmlns:avalonia="clr-namespace:HyperText.Avalonia;assembly=HyperText.Avalonia"
              x:Class="FoxHollow.FHM.App">
 
     <Application.DataTemplates>
@@ -22,6 +23,11 @@
 
     <Application.Styles>
         <FluentTheme Mode="Dark" />
+        <avalonia:HyperLinkStyle />
+
+        <Style Selector="Window">
+            <Setter Property="Background" Value="#444444" />
+        </Style>
     </Application.Styles>
     
     <!-- For avalonia 11: -->

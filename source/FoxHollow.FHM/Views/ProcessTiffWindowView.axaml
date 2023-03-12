@@ -20,7 +20,7 @@
         d:DesignWidth="900" d:DesignHeight="550"
         Width="900" Height="550"
         WindowStartupLocation="CenterScreen"
-        x:Class="FoxHollow.FHM.Views.ProcessTiffWindow"
+        x:Class="FoxHollow.FHM.Views.ProcessTiffWindowView"
         x:DataType="vm:ProcessTiffWindowViewModel"
         Icon="/Assets/tree3-edit.png"
         Title="Family History Manager">

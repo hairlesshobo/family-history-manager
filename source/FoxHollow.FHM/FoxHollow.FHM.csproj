@@ -40,6 +40,7 @@
     <PackageReference Include="Avalonia.Desktop" Version="0.10.18" />   
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.18" />
     <PackageReference Include="Avalonia" Version="0.10.18" />
+    <PackageReference Include="HyperText.Avalonia" Version="1.0.0" />
     <PackageReference Include="MessageBox.Avalonia" Version="2.1.0" />
     <PackageReference Include="Splat.Microsoft.Extensions.DependencyInjection" Version="14.6.8" />
     <PackageReference Include="XamlNameReferenceGenerator" Version="1.6.1" />
