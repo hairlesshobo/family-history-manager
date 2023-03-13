@@ -19,15 +19,22 @@
 
     <Style Selector="TextBlock.left">
       <Setter Property="HorizontalAlignment" Value="Right" />
+      <Setter Property="FontWeight" Value="Bold" />
+    </Style>
+
+    <Style Selector="TextBlock.small">
+      <Setter Property="FontSize" Value="12" />
     </Style>
   </Window.Styles>
   
-  <Grid RowDefinitions="Auto *" ColumnDefinitions="Auto *"
+  <Grid RowDefinitions="Auto Auto Auto * Auto" ColumnDefinitions="Auto *"
         Margin="25">
 
     <Image Grid.Row="0" Grid.Column="0" 
-           Grid.RowSpan="2"
+           Grid.RowSpan="5"
            Source="/Assets/tree3-edit.png" />
+
+    <!-- TODO: Move these values to something configurable -->
 
     <TextBlock Grid.Row="0" Grid.Column="1" 
                HorizontalAlignment="Center"
@@ -36,19 +43,40 @@
                Foreground="#9ec33b"
                Text="Family History Manager" />
 
-    <Grid Grid.Row="1" Grid.Column="1"
+    <TextBlock Grid.Row="1" Grid.Column="1" 
+               HorizontalAlignment="Center"
+               Padding="0"
+               Classes="small"
+               Text="Version 23.3.0" />
+
+    <TextBlock Grid.Row="2" Grid.Column="1" 
+               HorizontalAlignment="Center"
+               TextWrapping="Wrap"
+               Padding="0 20"
+               Text="A cross platform tool to help organize and preserve all types of family history" />
+
+    <Grid Grid.Row="3" Grid.Column="1"
           RowDefinitions="Auto Auto Auto *" ColumnDefinitions="Auto *">
 
           <TextBlock Grid.Row="0" Grid.Column="0" Classes="left" Text="Author" />
-          <controls:Hyperlink Grid.Row="0" Grid.Column="1" Classes="left" 
-                              Url="mailto:flip@foxhollow.cc" Alias="Steve Cross" />
+          <TextBlock Grid.Row="0" Grid.Column="1" Text="Steve Cross" />
           
-          <TextBlock Grid.Row="1" Grid.Column="0" Classes="left" Text="Homepage:" />
+          <TextBlock Grid.Row="1" Grid.Column="0" Classes="left" Text="Homepage" />
           <controls:Hyperlink Grid.Row="1" Grid.Column="1" 
                               Url="https://code.foxhollow.cc/fhm/" />
 
-          
-          
+          <TextBlock Grid.Row="2" Grid.Column="0" Classes="left" Text="License" />
+          <TextBlock Grid.Row="2" Grid.Column="1" Text="Mozilla Public License, v2.0" />
+
     </Grid>
+
+    <TextBlock Grid.Row="4" Grid.Column="1" 
+               HorizontalAlignment="Center"
+               Classes="small"
+               Padding="0 6"
+               Text="Copyright (c) 2020-2023 Steve Cross" />
+
+          
+
   </Grid>
 </Window>
