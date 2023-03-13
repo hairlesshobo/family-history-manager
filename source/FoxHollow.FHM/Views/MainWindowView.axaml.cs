@@ -1,10 +1,8 @@
 using System;
 using System.ComponentModel;
-using System.Formats.Asn1;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using FoxHollow.FHM.Classes;
 using FoxHollow.FHM.Shared.Services;
 using Microsoft.Extensions.Logging;
@@ -31,7 +29,9 @@ public partial class MainWindowView : Window
 
     private void LogCallback(string level, string message)
     {
-        _logBox.Text = message + _logBox.Text;
+        // _logBox.Text = message + _logBox.Text;
+        _logBox.Text += message;
+        _logBox.CaretIndex = _logBox.Text.Length;
     }
 
     private async void ShowAboutWindow(object sender, RoutedEventArgs e)
@@ -53,8 +53,8 @@ public partial class MainWindowView : Window
     protected override void OnOpened(EventArgs e)
     {
         _logBox = this.GetControl<TextBox>("logBox");
-
         _eventLoggerService.RegisterLogDestination(LogCallback);
+        _logger.LogInformation("Family History Manager initialized");
 
         base.OnOpened(e);
     }

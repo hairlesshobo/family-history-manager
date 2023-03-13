@@ -14,7 +14,6 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using FoxHollow.FHM.ViewModels;
 using FoxHollow.FHM.Views;
 
 namespace FoxHollow.FHM;
@@ -32,7 +31,7 @@ public partial class App : Application
         {
             desktop.MainWindow = new MainWindowView()
             {
-                DataContext = new object() //new ProcessTiffWindowViewModel(),
+                DataContext = new object()
             };
         }
 

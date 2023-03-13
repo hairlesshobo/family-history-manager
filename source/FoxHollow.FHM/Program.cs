@@ -29,6 +29,8 @@ namespace FoxHollow.FHM;
 
 class Program
 {
+    // TODO: Kill this somehow
+    [Obsolete]
     public static IServiceProvider Services { get; private set; }
     // private static IServiceProvider _serviceProvider;
 

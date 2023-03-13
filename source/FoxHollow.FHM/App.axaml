@@ -23,10 +23,15 @@
 
     <Application.Styles>
         <FluentTheme Mode="Dark" />
+
         <avalonia:HyperLinkStyle />
 
         <Style Selector="Window">
             <Setter Property="Background" Value="#303941" />
+        </Style>
+
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="#bbc0ca" />
         </Style>
     </Application.Styles>
     
