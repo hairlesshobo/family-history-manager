@@ -11,6 +11,14 @@
         Title="Family History Manager">
 
   <Window.Styles>
+    <Style Selector="TextBox.logBox">
+      <Setter Property="Background" Value="#191d22" />
+    </Style>
+
+    <Style Selector="TextBox.logBox:pointerover /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="#191d22" />
+    </Style>
+
     <Style Selector="TabControl">
       <Setter Property="Background" Value="#293038"/>
       <Setter Property="Padding" Value="0"/>
@@ -48,26 +56,52 @@
       <MenuItem Header="_File">
         <MenuItem Header="_Open Directory" 
                   HotKey="Ctrl+O"
-                  InputGesture="Ctrl+O" />
+                  InputGesture="Ctrl+O">
+          <MenuItem.Icon>
+              <Image Source="/Assets/coreui-icons-free/light_cil-folder-open_48.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
         <Separator />
-        <MenuItem Header="E_xit" />
+        <MenuItem Header="E_xit">
+          <MenuItem.Icon>
+              <Image Source="/Assets/coreui-icons-free/light_cil-door_48.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
       </MenuItem>
       <MenuItem Header="_Processing">
-        <MenuItem Header="_Photo Processor" Click="ShowTiffProcessor" />
-        <MenuItem Header="_Raw Video Processor" />
+        <MenuItem Header="_Photo Processor" Click="ShowTiffProcessor">
+          <MenuItem.Icon>
+              <Image Source="/Assets/coreui-icons-free/light_cil-filter-photo_48.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
+        <MenuItem Header="_Raw Video Processor">
+          <MenuItem.Icon>
+              <Image Source="/Assets/coreui-icons-free/light_cil-video_48.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
       </MenuItem>
       <MenuItem Header="_Help">
-        <MenuItem Header="_About" Click="ShowAboutWindow" />
+        <MenuItem Header="_About" Click="ShowAboutWindow">
+          <MenuItem.Icon>
+              <Image Source="/Assets/coreui-icons-free/light_cil-info_48.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
       </MenuItem>
     </Menu>
     
 
     <TabControl Grid.Row="2" Grid.Column="0">
       <TabItem Header="Log Output" VerticalContentAlignment="Center">
-        <TextBox BorderThickness="0" 
-                 Background="#293038" 
+        <TextBox Classes="logBox"
+                 FontFamily="Cascadia Code,Consolas,Menlo,Monospace"
+                 FontWeight="Light"
+                 FontSize="13"
+                 ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                 ScrollViewer.VerticalScrollBarVisibility="Visible"
+                 Padding="9 5"
+                 BorderThickness="0" 
                  Name="logBox"
-                 AcceptsReturn="True" 
+                 AcceptsReturn="True"
                  IsReadOnly="True"
                  Focusable="False" />
       </TabItem>
