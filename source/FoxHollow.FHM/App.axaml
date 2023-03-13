@@ -17,30 +17,30 @@
              xmlns:avalonia="clr-namespace:HyperText.Avalonia;assembly=HyperText.Avalonia"
              x:Class="FoxHollow.FHM.App">
 
-    <Application.DataTemplates>
-        <local:ViewLocator/>
-    </Application.DataTemplates>
+  <Application.DataTemplates>
+    <local:ViewLocator/>
+  </Application.DataTemplates>
 
-    <Application.Styles>
-        <FluentTheme Mode="Dark" />
+  <Application.Styles>
+    <FluentTheme Mode="Dark" />
 
-        <avalonia:HyperLinkStyle />
+    <avalonia:HyperLinkStyle />
 
-        <Style Selector="Window">
-            <Setter Property="Background" Value="#303941" />
-        </Style>
+    <Style Selector="Window">
+      <Setter Property="Background" Value="#303941" />
+    </Style>
 
-        <Style Selector="TextBlock">
-            <Setter Property="Foreground" Value="#bbc0ca" />
-        </Style>
-    </Application.Styles>
+    <Style Selector="TextBlock, MenuItem, TextBox">
+      <Setter Property="TextBlock.Foreground" Value="#bbc0ca" />
+    </Style>
+  </Application.Styles>
     
-    <!-- For avalonia 11: -->
-    <!--
-    <Application.Styles>
-        <SimpleTheme />
-    </Application.Styles>
+  <!-- For avalonia 11: -->
+  <!--
+  <Application.Styles>
+    <SimpleTheme />
+  </Application.Styles>
 
-    <Application.RequestedThemeVariant>Dark</Application.RequestedThemeVariant> 
-    -->
+  <Application.RequestedThemeVariant>Dark</Application.RequestedThemeVariant> 
+  -->
 </Application>
