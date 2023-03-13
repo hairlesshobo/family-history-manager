@@ -1,3 +1,16 @@
+<!--
+  Family History Manager - https://code.foxhollow.cc/fhm/
+ 
+  A cross platform tool to help organize and preserve all types
+  of family history
+ 
+  Copyright (c) 2020-2023 Steve Cross <flip@foxhollow.cc>
+ 
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+-->
+
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
