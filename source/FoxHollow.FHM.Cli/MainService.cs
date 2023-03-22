@@ -1,23 +1,32 @@
-/**
- *  Family History Manager - https://code.foxhollow.cc/fhm/
- *
- *  A cross platform tool to help organize and preserve all types
- *  of family history
- * 
- *  Copyright (c) 2020-2023 Steve Cross <flip@foxhollow.cc>
- *
- *  This Source Code Form is subject to the terms of the Mozilla Public
- *  License, v. 2.0. If a copy of the MPL was not distributed with this
- *  file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
+//==========================================================================
+//  Family History Manager - https://code.foxhollow.cc/fhm/
+//
+//  A cross platform tool to help organize and preserve all types
+//  of family history
+//==========================================================================
+//  Copyright (c) 2020-2023 Steve Cross <flip@foxhollow.cc>
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//==========================================================================
 
 using System;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using FoxHollow.FHM.Shared.Classes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using FoxHollow.FHM.Core;
-using FoxHollow.FHM.Core.Operations;
 
 namespace FoxHollow.FHM.Cli;
 
@@ -36,10 +45,50 @@ internal class MainService
 
         var cts = new CancellationTokenSource();
 
+        Console.WriteLine(TestDate("about 1983"));
+        Console.WriteLine(TestDate("abt  1967"));
+        Console.WriteLine(TestDate("abt. 1922"));
+        Console.WriteLine(TestDate("abt. 1922-1924"));
+        Console.WriteLine(TestDate("1941"));
+        Console.WriteLine(TestDate("1935-1938"));
+        Console.WriteLine(TestDate("spring 1945"));
+
+        Console.WriteLine(TestDate("2022-02-21"));
+        Console.WriteLine(TestDate("spring 1996"));
+        Console.WriteLine(TestDate("~2002"));
+        Console.WriteLine(TestDate("about 1985"));
+        Console.WriteLine(TestDate("abt. 1960"));
+        Console.WriteLine(TestDate("1930s"));
+
+        Console.WriteLine(TestDate("Dec 2022"));
+        // Console.WriteLine(TestDate("March 1974 - July 1974"));
+        // Console.WriteLine(TestDate("Mar 1974 - Jul 1974"));
+        
+
+        Console.WriteLine(TestDate("4 Dec 2011"));
+        Console.WriteLine(TestDate("26 Nov 1989"));
+        Console.WriteLine(TestDate("Nov. 1989"));
+        Console.WriteLine(TestDate("1989-11"));
+        Console.WriteLine(TestDate("1989-11-26"));
+        Console.WriteLine(TestDate("between 1974-1977"));
+
+
         // var organizer = new OrganizeRawMediaOperation(_serviceProvider);
         // await organizer.StartAsync(cts.Token);
 
-        var prepareTiff = new ProcessPhotosOperation(_serviceProvider);
-        await prepareTiff.StartAsync(cts.Token);
+        // var prepareTiff = new ProcessPhotosOperation(_serviceProvider);
+        // await prepareTiff.StartAsync(cts.Token);
+    }
+
+    private string TestDate(string fDate)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine($" input: {fDate}");
+        var data = new FlexibleDate(fDate);
+        
+        sb.AppendLine("  json: " + JsonSerializer.Serialize(data, new JsonSerializerOptions() { WriteIndented = false }));
+        sb.AppendLine("output: " + data.ToString());
+
+        return sb.ToString();
     }
 }

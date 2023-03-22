@@ -9,7 +9,8 @@
                 "build",
                 "${workspaceFolder}/source/FoxHollow.FHM.Cli/FoxHollow.FHM.Cli.csproj",
                 "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "/consoleloggerparameters:NoSummary",
+                "--no-restore"
             ],
             "problemMatcher": "$msCompile"
         },

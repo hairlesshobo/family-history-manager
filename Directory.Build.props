@@ -1,0 +1,21 @@
+<Project>
+    <PropertyGroup>
+        <Version>2023.03.0</Version>
+
+        <Title>Family History Manager</Title>
+        <Product>Family History Manager</Product>
+
+        <Description>
+            A cross platform tool to help organize and preserve all types of family history
+        </Description>
+        <Authors>Steve Cross</Authors>
+        <Copyright>Copyright (c) 2020-2023 Steve Cross &lt;flip@foxhollow.cc&gt;</Copyright>
+
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageProjectUrl>https://code.foxhollow.cc/fhm/</PackageProjectUrl>
+        <PackageReleaseNotes>https://code.foxhollow.cc/fhm/#/changelog</PackageReleaseNotes>
+        <RepositoryUrl>https://git.foxhollow.cc/family-history/manager.git</RepositoryUrl>
+        <RespositoryType>git</RespositoryType>
+        <PackageTags>console terminal data tape disc backup archive family-history</PackageTags>
+    </PropertyGroup>
+</Project>
