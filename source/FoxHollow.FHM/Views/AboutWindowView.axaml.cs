@@ -20,10 +20,11 @@
 //--------------------------------------------------------------------------
 
 using System;
+using FoxHollow.FHM.ViewModels;
 
 namespace FoxHollow.FHM.Views;
 
-public partial class AboutWindowView : WindowBase
+public partial class AboutWindowView : WindowBase<AboutWindowViewModel>
 {
     public AboutWindowView(IServiceProvider services)
         : base(services)

@@ -25,8 +25,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:FoxHollow.FHM.ViewModels"
         xmlns:controls="clr-namespace:HyperText.Avalonia.Controls;assembly=HyperText.Avalonia"
         x:Class="FoxHollow.FHM.Views.AboutWindowView"
+        x:DataType="vm:AboutWindowViewModel"
         mc:Ignorable="d" 
         d:DesignWidth="600" d:DesignHeight="300"
         Width="600" Height="300"
@@ -64,32 +66,32 @@
                Padding="0 6"
                FontSize="24" FontWeight="Bold"
                Foreground="#9ec33b"
-               Text="Family History Manager" />
+               Text="{Binding ProjectName}" />
 
     <TextBlock Grid.Row="1" Grid.Column="1" 
                HorizontalAlignment="Center"
                Padding="0"
                Classes="small"
-               Text="Version 23.3.0" />
+               Text="{Binding Version}" />
 
     <TextBlock Grid.Row="2" Grid.Column="1" 
                HorizontalAlignment="Center"
                TextWrapping="Wrap"
                Padding="0 20"
-               Text="A cross platform tool to help organize and preserve all types of family history" />
+               Text="{Binding Description}" />
 
     <Grid Grid.Row="3" Grid.Column="1"
           RowDefinitions="Auto Auto Auto *" ColumnDefinitions="Auto *">
 
           <TextBlock Grid.Row="0" Grid.Column="0" Classes="left" Text="Author" />
-          <TextBlock Grid.Row="0" Grid.Column="1" Text="Steve Cross" />
+          <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Author}" />
           
           <TextBlock Grid.Row="1" Grid.Column="0" Classes="left" Text="Homepage" />
           <controls:Hyperlink Grid.Row="1" Grid.Column="1" 
-                              Url="https://code.foxhollow.cc/fhm/" />
+                              Url="{Binding Url}" />
 
           <TextBlock Grid.Row="2" Grid.Column="0" Classes="left" Text="License" />
-          <TextBlock Grid.Row="2" Grid.Column="1" Text="Apache License, version 2.0" />
+          <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding License}" />
 
     </Grid>
 
@@ -97,7 +99,7 @@
                HorizontalAlignment="Center"
                Classes="small"
                Padding="0 6"
-               Text="Copyright (c) 2020-2023 Steve Cross" />
+               Text="{Binding Copyright}" />
 
           
 
