@@ -24,16 +24,8 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Avalonia;
-using Avalonia.Controls;
 using FoxHollow.FHM.Core.Operations;
-using FoxHollow.FHM.Shared.Native;
-using MessageBox.Avalonia;
-using MessageBox.Avalonia.DTO;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.Extensions.Hosting.Internal;
 using ReactiveUI;
-using Splat;
 
 namespace FoxHollow.FHM.ViewModels;
 
@@ -82,7 +74,8 @@ public class ProcessTiffWindowViewModel : ViewModelBase
     /// <summary>
     ///     Default constructor
     /// </summary>
-    public ProcessTiffWindowViewModel()
+    public ProcessTiffWindowViewModel(IServiceProvider services)
+        : base(services)
     {
         CancelProcess = ReactiveCommand.Create(CancelProcess_OnClick);
     }
@@ -95,7 +88,7 @@ public class ProcessTiffWindowViewModel : ViewModelBase
     {
         _cts = new CancellationTokenSource();
 
-        ProcessPhotosOperation operation = new ProcessPhotosOperation(Program.Services)
+        ProcessPhotosOperation operation = new ProcessPhotosOperation(_services)
         {
             Recursive = this.RecursiveScan,
             RootDirectory = this.RootDirectory

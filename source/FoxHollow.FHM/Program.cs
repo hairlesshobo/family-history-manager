@@ -37,11 +37,6 @@ namespace FoxHollow.FHM;
 
 class Program
 {
-    // TODO: Kill this somehow
-    [Obsolete]
-    public static IServiceProvider Services { get; private set; }
-    // private static IServiceProvider _serviceProvider;
-
     // Initialization code. Don't use any Avalonia, third-party APIs or any
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
@@ -55,15 +50,15 @@ class Program
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
     {
-        ConfigureServices();
+        var serviceProvider = ConfigureServices();
 
-        return AppBuilder.Configure<App>()
+        return AppBuilder.Configure<App>(() => new App(serviceProvider))
             .UsePlatformDetect()
             .LogToTrace()
             .UseReactiveUI();
     }
 
-    private static void ConfigureServices()
+    private static IServiceProvider ConfigureServices()
     {
         var config = Configure();
 
@@ -93,7 +88,7 @@ class Program
         var resolver = new MicrosoftDependencyResolver(collection);
         Locator.SetLocator(resolver);
 
-        Services = collection.BuildServiceProvider();
+        return collection.BuildServiceProvider();
     }
 
     private static IConfiguration Configure()

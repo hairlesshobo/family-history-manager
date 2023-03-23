@@ -20,34 +20,21 @@
 //==========================================================================
 
 using System;
-using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Markup.Xaml;
-using FoxHollow.FHM.Views;
-using Microsoft.Extensions.DependencyInjection;
+using FoxHollow.FHM.ViewModels;
 
-namespace FoxHollow.FHM;
+namespace FoxHollow.FHM.Views;
 
-public partial class App : Application
+/// <summary>
+///     Base class used for windows that do not need a custom view model attached
+/// </summary>
+public class WindowBase : WindowBase<ViewModelBase>
 {
-    private IServiceProvider _services;
-
-    public App(IServiceProvider services)
-        : base()
+    /// <summary>
+    ///     Constructor that accepts only the DI container
+    /// </summary>
+    /// <param name="services">DI container</param>
+    protected WindowBase(IServiceProvider services)
+        : base(services)
     {
-        _services = services ?? throw new ArgumentNullException(nameof(services));
-    }
-
-    public override void Initialize()
-    {
-        AvaloniaXamlLoader.Load(this);
-    }
-
-    public override void OnFrameworkInitializationCompleted()
-    {
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            desktop.MainWindow = ActivatorUtilities.CreateInstance<MainWindowView>(_services);
-
-        base.OnFrameworkInitializationCompleted();
     }
 }

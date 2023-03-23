@@ -31,18 +31,17 @@ using Splat;
 
 namespace FoxHollow.FHM.Views;
 
-public partial class ProcessTiffWindowView : Window
+public partial class ProcessTiffWindowView : WindowBase<ProcessTiffWindowViewModel>
 {
     private Microsoft.Extensions.Logging.ILogger _logger;
 
-    public ProcessTiffWindowView()
+    public ProcessTiffWindowView(IServiceProvider services)
+        : base(services)
     {
         InitializeComponent();
 
         if (_logger == null)
             _logger = Locator.Current.GetRequiredService<ILogger<ProcessTiffWindowView>>();
-
-        this.DataContext = new ProcessTiffWindowViewModel();
     }
 
     protected override void OnOpened(EventArgs e)

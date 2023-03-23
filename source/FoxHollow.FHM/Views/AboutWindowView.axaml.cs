@@ -1,9 +1,9 @@
-//==========================================================================
+//--------------------------------------------------------------------------
 //  Family History Manager - https://code.foxhollow.cc/fhm/
 //
 //  A cross platform tool to help organize and preserve all types
 //  of family history
-//==========================================================================
+//--------------------------------------------------------------------------
 //  Copyright (c) 2020-2023 Steve Cross <flip@foxhollow.cc>
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,15 +17,16 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-//==========================================================================
+//--------------------------------------------------------------------------
 
-using Avalonia.Controls;
+using System;
 
 namespace FoxHollow.FHM.Views;
 
-public partial class AboutWindowView : Window
+public partial class AboutWindowView : WindowBase
 {
-    public AboutWindowView()
+    public AboutWindowView(IServiceProvider services)
+        : base(services)
     {
         InitializeComponent();
     }

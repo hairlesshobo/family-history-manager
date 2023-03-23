@@ -19,10 +19,17 @@
 //  limitations under the License.
 //==========================================================================
 
+using System;
 using ReactiveUI;
 
 namespace FoxHollow.FHM.ViewModels;
 
 public class ViewModelBase : ReactiveObject
 {
+    protected IServiceProvider _services;
+    
+    public ViewModelBase(IServiceProvider services)
+    {
+        _services = services ?? throw new ArgumentNullException(nameof(services));
+    }
 }

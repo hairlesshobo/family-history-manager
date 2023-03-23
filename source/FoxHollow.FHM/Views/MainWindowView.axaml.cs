@@ -26,20 +26,26 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using FoxHollow.FHM.Classes;
 using FoxHollow.FHM.Shared.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Splat;
 
 namespace FoxHollow.FHM.Views;
 
-public partial class MainWindowView : Window
+public partial class MainWindowView : WindowBase
 {
     private Microsoft.Extensions.Logging.ILogger _logger;
     private IEventLoggerEventService _eventLoggerService;
     private TextBox _logBox;
 
-    public MainWindowView()
+    public MainWindowView(IServiceProvider services)
+        : base(services)
     {
+
         InitializeComponent();
+
+        // TODO: eliminate splat?
+        // AvaloniaLocator.Current.GetRequiredService
 
         if (_eventLoggerService == null)
             _eventLoggerService = Locator.Current.GetRequiredService<IEventLoggerEventService>();
@@ -59,7 +65,7 @@ public partial class MainWindowView : Window
     {
         _logger.LogInformation("Showing about window");
 
-        var dialog = new AboutWindowView();
+        var dialog = ActivatorUtilities.CreateInstance<AboutWindowView>(_services);
         await dialog.ShowDialog(this);
     }
 
@@ -67,7 +73,7 @@ public partial class MainWindowView : Window
     {
         _logger.LogInformation("Showing tiff processor window");
 
-        var dialog = new ProcessTiffWindowView();
+        var dialog = ActivatorUtilities.CreateInstance<ProcessTiffWindowView>(_services);
         dialog.Show(this);
     }
 
