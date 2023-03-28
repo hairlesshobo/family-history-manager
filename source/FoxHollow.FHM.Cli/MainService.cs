@@ -51,13 +51,15 @@ internal class MainService
         // RunDateTests();
 
         var spConfig = new ProviderConfigCollection();
-        spConfig.Add(new Config)
-        var sp = new LocalStorageProvider(_services);
+        spConfig.Add(new ProviderConfigValue("RootPath", "/home/flip"));
+
+        var sp = new LocalStorageProvider(_services, spConfig);
         await sp.ConnectAsync();
 
         await foreach (var entry in sp.RootDirectory.ListDirectoryAsync())
         {
-            _logger.LogInformation(entry.Path);
+            if (entry is ProviderDirectory)
+                _logger.LogInformation(entry.Path);
         }
 
         // var organizer = new OrganizeRawMediaOperation(_serviceProvider);
