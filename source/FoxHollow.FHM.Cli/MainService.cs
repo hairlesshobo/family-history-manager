@@ -25,6 +25,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using FoxHollow.FHM.Shared.Classes;
+using FoxHollow.FHM.Shared.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -32,18 +33,42 @@ namespace FoxHollow.FHM.Cli;
 
 internal class MainService
 {
-    private IServiceProvider _serviceProvider;
+    private IServiceProvider _services;
+    private ILogger _logger;
 
-    public MainService(IServiceProvider provider)
+    public MainService(IServiceProvider services)
     {
-        _serviceProvider = provider;
+        _services = services ?? throw new ArgumentNullException(nameof(services));
+        _logger = _services.GetRequiredService<ILogger<MainService>>();
     }
 
     public async Task RunAsync()
     {
-        var logger = _serviceProvider.GetRequiredService<ILogger<MainService>>();
 
         var cts = new CancellationTokenSource();
+
+        // TODO: Move to actual test suite
+        // RunDateTests();
+
+        var spConfig = new ProviderConfigCollection();
+        spConfig.Add(new Config)
+        var sp = new LocalStorageProvider(_services);
+        await sp.ConnectAsync();
+
+        await foreach (var entry in sp.RootDirectory.ListDirectoryAsync())
+        {
+            _logger.LogInformation(entry.Path);
+        }
+
+        // var organizer = new OrganizeRawMediaOperation(_serviceProvider);
+        // await organizer.StartAsync(cts.Token);
+
+        // var prepareTiff = new ProcessPhotosOperation(_serviceProvider);
+        // await prepareTiff.StartAsync(cts.Token);
+    }
+
+    public void RunDateTests()
+    {
 
         Console.WriteLine(TestDate("about 1983"));
         Console.WriteLine(TestDate("abt  1967"));
@@ -63,7 +88,7 @@ internal class MainService
         Console.WriteLine(TestDate("Dec 2022"));
         // Console.WriteLine(TestDate("March 1974 - July 1974"));
         // Console.WriteLine(TestDate("Mar 1974 - Jul 1974"));
-        
+
 
         Console.WriteLine(TestDate("4 Dec 2011"));
         Console.WriteLine(TestDate("26 Nov 1989"));
@@ -72,12 +97,6 @@ internal class MainService
         Console.WriteLine(TestDate("1989-11-26"));
         Console.WriteLine(TestDate("between 1974-1977"));
 
-
-        // var organizer = new OrganizeRawMediaOperation(_serviceProvider);
-        // await organizer.StartAsync(cts.Token);
-
-        // var prepareTiff = new ProcessPhotosOperation(_serviceProvider);
-        // await prepareTiff.StartAsync(cts.Token);
     }
 
     private string TestDate(string fDate)
