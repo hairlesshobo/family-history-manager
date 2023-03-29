@@ -51,6 +51,7 @@ internal class MainService
         // RunDateTests();
 
         var spConfig = new ProviderConfigCollection();
+        spConfig.Add(new ProviderConfigValue("RepositoryID", "local"));
         spConfig.Add(new ProviderConfigValue("RootPath", "/home/flip"));
 
         var sp = new LocalStorageProvider(_services, spConfig);
