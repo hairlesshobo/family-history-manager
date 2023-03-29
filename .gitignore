@@ -474,3 +474,5 @@ $RECYCLE.BIN/
 /python-scrapped/config/**.yaml
 
 /config/**/*.json
+
+lcov.info
