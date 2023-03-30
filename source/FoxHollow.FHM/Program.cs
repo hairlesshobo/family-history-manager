@@ -25,6 +25,7 @@ using Avalonia.ReactiveUI;
 using FoxHollow.FHM.Core.Models;
 using FoxHollow.FHM.Shared;
 using FoxHollow.FHM.Shared.Services;
+using FoxHollow.FHM.Shared.Storage;
 using FoxHollow.FHM.Shared.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -88,7 +89,11 @@ class Program
         var resolver = new MicrosoftDependencyResolver(collection);
         Locator.SetLocator(resolver);
 
-        return collection.BuildServiceProvider();
+        var serviceProvider = collection.BuildServiceProvider();
+
+        ServiceExtensions.InitFhmPlatform(serviceProvider);
+
+        return serviceProvider;
     }
 
     private static IConfiguration Configure()

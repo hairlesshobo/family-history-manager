@@ -37,17 +37,17 @@ public class Program
 
     private static async Task Main()
     {
-        RegisterServices();
+        var serviceProvider = RegisterServices();
 
         // Call main entry point of the application
-        var service = _serviceProvider.GetService<MainService>();
+        var service = serviceProvider.GetService<MainService>();
 
         await service.RunAsync();
 
-        DisposeServices();
+        DisposeServices(serviceProvider);
     }
 
-    private static void RegisterServices()
+    private static IServiceProvider RegisterServices()
     {
         var config = Configure();
 
@@ -58,6 +58,7 @@ public class Program
         var collection = new ServiceCollection();
         collection.AddSingleton<IConfiguration>(config);
         collection.AddSingleton<AppConfig>(configModel);
+        collection.AddFhmStartupServices();
         collection.AddLogging(logging =>
         {
             logging.AddConfiguration(config.GetSection("Logging"));
@@ -72,7 +73,11 @@ public class Program
         collection.AddFhmServices();
         collection.AddScoped<MainService>();
 
-        _serviceProvider = collection.BuildServiceProvider();
+        var serviceProvider = collection.BuildServiceProvider();
+
+        ServiceExtensions.InitFhmPlatform(serviceProvider);
+
+        return serviceProvider;
     }
 
     private static IConfiguration Configure()
@@ -86,9 +91,9 @@ public class Program
         return config;
     }
 
-    private static void DisposeServices()
+    private static void DisposeServices(IServiceProvider serviceProvider)
     {
-        if (_serviceProvider != null && _serviceProvider is IDisposable)
-            ((IDisposable)_serviceProvider).Dispose();
+        if (serviceProvider != null && serviceProvider is IDisposable)
+            ((IDisposable)serviceProvider).Dispose();
     }
 }

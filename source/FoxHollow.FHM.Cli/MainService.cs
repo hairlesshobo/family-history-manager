@@ -50,11 +50,10 @@ internal class MainService
         // TODO: Move to actual test suite
         // RunDateTests();
 
-        var spConfig = new ProviderConfigCollection();
-        spConfig.Add(new ProviderConfigValue("RepositoryID", "local"));
-        spConfig.Add(new ProviderConfigValue("RootPath", "/home/flip"));
+        var sm = _services.GetRequiredService<StorageManager>();
 
-        var sp = new LocalStorageProvider(_services, spConfig);
+        var sp = sm.GetRepository("local");
+
         await sp.ConnectAsync();
 
         await foreach (var entry in sp.RootDirectory.ListDirectoryAsync())
