@@ -58,7 +58,7 @@ internal class MainService
 
         await foreach (var entry in sp.RootDirectory.ListDirectoryAsync())
         {
-            if (entry is ProviderDirectory)
+            if (entry is StorageDirectory)
                 _logger.LogInformation(entry.Path);
         }
 

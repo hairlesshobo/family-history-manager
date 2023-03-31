@@ -140,7 +140,7 @@ public class OrganizeRawMediaOperation
 
             // if we are deemed to be in a cam folder, lets check to see if it is a known camera
             if (inCamDir)
-                camDirName = entry.FileInfo.Directory.Name;
+                camDirName = entry.FileEntry.Directory.Name;
 
             dirIsKnownCam = camProfileService.CamNames.Contains(camDirName);
 
@@ -175,7 +175,7 @@ public class OrganizeRawMediaOperation
 
             if (entry.RelativeDepth > 2)
             {
-                DirectoryInfo eventDirInfo = PathUtils.FindDirectoryAtRelativeDepth(collection.RootDirectoryPath, entry.FileInfo.Directory.FullName, 2);
+                DirectoryInfo eventDirInfo = PathUtils.FindDirectoryAtRelativeDepth(collection.RootDirectoryPath, entry.FileEntry.Directory.FullName, 2);
                 eventDirPath = eventDirInfo.FullName;
             }
 

@@ -21,28 +21,33 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using FoxHollow.FHM.Core.Models;
 using FoxHollow.FHM.Core.Operations;
+using FoxHollow.FHM.Shared.Classes;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using ReactiveUI;
 
 namespace FoxHollow.FHM.ViewModels;
 
 public class ProcessTiffWindowViewModel : ViewModelBase
 {
+    // private ILogger _logger;
+    private AppConfig _config;
     private CancellationTokenSource _cts;
 
-    private string rootDirectory = String.Empty;
-    private bool recursiveScan = false;
-    private bool formValid;
-    private bool isRunning;
 
     public bool FormValid 
     { 
         get => formValid;
         private set => this.RaiseAndSetIfChanged(ref formValid, value); 
     }
+    private bool formValid;
+
     public bool RecursiveScan
     {
         get => recursiveScan;
@@ -52,6 +57,8 @@ public class ProcessTiffWindowViewModel : ViewModelBase
             CheckFormState();
         }
     }
+    private bool recursiveScan = false;
+
     public string RootDirectory
     {
         get => rootDirectory;
@@ -61,11 +68,14 @@ public class ProcessTiffWindowViewModel : ViewModelBase
             CheckFormState();
         }
     }
+    private string rootDirectory = String.Empty;
+
     public bool IsRunning 
     { 
         get => isRunning; 
         private set => this.RaiseAndSetIfChanged(ref isRunning, value);
     }
+    private bool isRunning;
 
     // public ICommand RunProcess { get; }
     public ICommand CancelProcess { get; }
@@ -77,6 +87,9 @@ public class ProcessTiffWindowViewModel : ViewModelBase
     public ProcessTiffWindowViewModel(IServiceProvider services)
         : base(services)
     {
+        _config = _services.GetRequiredService<AppConfig>();
+        // _logger = _services.GetRequiredService<ILogger<ProcessTiffWindowViewModel>>();
+
         CancelProcess = ReactiveCommand.Create(CancelProcess_OnClick);
     }
 
@@ -88,19 +101,26 @@ public class ProcessTiffWindowViewModel : ViewModelBase
     {
         _cts = new CancellationTokenSource();
 
-        ProcessPhotosOperation operation = new ProcessPhotosOperation(_services)
+        var sr = _storage.GetRepository("local");
+
+        var processor = new PhotoProcessor(_services)
         {
-            Recursive = this.RecursiveScan,
-            RootDirectory = this.RootDirectory
             // TODO: Add "interactive" checkbox
             // TODO: Add "keep backups" checkbox
+            Recursive = this.RecursiveScan,
+            Directory = sr.GetDirectory(this.RootDirectory),
+
+            ThumbnailSize = _config.Photos.ThumbnailSize,
+            ThumbnailExtension = _config.Photos.ThumbnailExtension,
+            PreviewSize = _config.Photos.PreviewSize,
+            PreviewExtension = _config.Photos.PreviewExtension,
+            IncludePaths = _config.Photos.Tiff.Directories.Include.ToList(),
+            ExcludePaths = _config.Photos.Tiff.Directories.Exclude.ToList(),
+            IncludeExtensions = _config.Photos.Tiff.Directories.Extensions.ToList()
         };
 
-        // _config.Photos.Tiff.Directories.Root
-
         this.IsRunning = true;
-        await operation.StartAsync(_cts.Token);
-
+        var queue = await processor.ProcessPhotos(_cts.Token);
         this.IsRunning = false;
     }
 

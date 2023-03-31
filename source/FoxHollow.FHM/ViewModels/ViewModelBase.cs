@@ -20,6 +20,8 @@
 //==========================================================================
 
 using System;
+using FoxHollow.FHM.Shared.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 
 namespace FoxHollow.FHM.ViewModels;
@@ -27,9 +29,11 @@ namespace FoxHollow.FHM.ViewModels;
 public class ViewModelBase : ReactiveObject
 {
     protected IServiceProvider _services;
-    
+    protected StorageManager _storage;
+
     public ViewModelBase(IServiceProvider services)
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
+        _storage = services.GetRequiredService<StorageManager>();
     }
 }
